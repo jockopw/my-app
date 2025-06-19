@@ -28,8 +28,8 @@ export default function App() {
         </button>
       </div>
 
-      {/* Tab content */}
-      <div className="tab-content">
+      {/* Tab content with fade animation */}
+      <div className="tab-content fade-in">
         {activeTab === "home" && <div>Welcome to the Home tab!</div>}
         {activeTab === "profile" && <div>This is your Profile tab.</div>}
         {activeTab === "settings" && <div>Adjust your Settings here.</div>}
