@@ -1,35 +1,33 @@
 import React, { useState } from "react";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("home");
+  const [message, setMessage] = useState("Click a button");
+
+  function handleHomeClick() {
+    setMessage("Home button clicked!");
+    // Your home button logic here
+  }
+
+  function handleProfileClick() {
+    setMessage("Profile button clicked!");
+    // Your profile button logic here
+  }
+
+  function handleSettingsClick() {
+    setMessage("Settings button clicked!");
+    // Your settings button logic here
+  }
 
   return (
     <div>
       <div style={{ marginBottom: 10 }}>
-        <button
-          onClick={() => setActiveTab("home")}
-          style={{ fontWeight: activeTab === "home" ? "bold" : "normal" }}
-        >
-          Home
-        </button>
-        <button
-          onClick={() => setActiveTab("profile")}
-          style={{ fontWeight: activeTab === "profile" ? "bold" : "normal" }}
-        >
-          Profile
-        </button>
-        <button
-          onClick={() => setActiveTab("settings")}
-          style={{ fontWeight: activeTab === "settings" ? "bold" : "normal" }}
-        >
-          Settings
-        </button>
+        <button onClick={handleHomeClick}>Home</button>
+        <button onClick={handleProfileClick}>Profile</button>
+        <button onClick={handleSettingsClick}>Settings</button>
       </div>
 
       <div>
-        {activeTab === "home" && <div>This is the Home tab content.</div>}
-        {activeTab === "profile" && <div>This is the Profile tab content.</div>}
-        {activeTab === "settings" && <div>This is the Settings tab content.</div>}
+        <p>{message}</p>
       </div>
     </div>
   );
