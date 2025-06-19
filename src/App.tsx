@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
 export default function App() {
@@ -6,34 +7,73 @@ export default function App() {
 
   return (
     <div className="container">
-      {/* Tab headers */}
       <div className="tabs">
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           className={activeTab === "home" ? "tab active" : "tab"}
           onClick={() => setActiveTab("home")}
         >
           Home
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           className={activeTab === "profile" ? "tab active" : "tab"}
           onClick={() => setActiveTab("profile")}
         >
           Profile
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           className={activeTab === "settings" ? "tab active" : "tab"}
           onClick={() => setActiveTab("settings")}
         >
           Settings
-        </button>
+        </motion.button>
       </div>
 
-      {/* Tab content with fade animation */}
-      <div className="tab-content fade-in">
-        {activeTab === "home" && <div>Welcome to the Home tab!</div>}
-        {activeTab === "profile" && <div>This is your Profile tab.</div>}
-        {activeTab === "settings" && <div>Adjust your Settings here.</div>}
-      </div>
+      <AnimatePresence exitBeforeEnter>
+        {activeTab === "home" && (
+          <motion.div
+            key="home"
+            className="tab-content"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            Welcome to the Home tab!
+          </motion.div>
+        )}
+
+        {activeTab === "profile" && (
+          <motion.div
+            key="profile"
+            className="tab-content"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            This is your Profile tab.
+          </motion.div>
+        )}
+
+        {activeTab === "settings" && (
+          <motion.div
+            key="settings"
+            className="tab-content"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            Adjust your Settings here.
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
