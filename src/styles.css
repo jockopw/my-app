@@ -1,67 +1,54 @@
-/* Background black and text color white */
-body, html, #root {
+body {
   margin: 0;
-  padding: 0;
-  height: 100%;
-  background-color: #000;
-  color: #eee;
   font-family: sans-serif;
+  background-color: #000;
+  color: white;
 }
 
 .container {
-  padding: 20px;
+  padding: 2rem;
+  text-align: center;
 }
 
-/* Tabs styling */
 .tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
 }
 
 .tab {
-  padding: 10px 20px;
-  cursor: pointer;
-  background-color: #222;
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #222;
   border: none;
-  border-radius: 6px 6px 0 0;
-  color: #ccc;
-  transition: background-color 0.3s, color 0.3s, transform 0.2s;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
 }
 
 .tab:hover {
-  background-color: #444;
-  color: #fff;
+  background: #333;
   transform: scale(1.05);
 }
 
 .tab.active {
-  background-color: #111;
-  border-bottom: 2px solid #0af;
-  color: #0af;
-  font-weight: bold;
-  transform: scale(1.1);
+  background: #555;
 }
 
-/* Tab content container */
 .tab-content {
-  padding: 20px;
-  background-color: #111;
-  border: 1px solid #222;
-  border-radius: 0 6px 6px 6px;
-  box-shadow: 0 0 15px #0af44f88;
-  min-height: 100px;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #111;
+  border-radius: 4px;
 }
 
-/* Simple fade-in animation for tab content */
 .fade-in {
-  animation: fadeIn 0.4s ease;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
