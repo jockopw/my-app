@@ -28,6 +28,14 @@ export default function App() {
   const [email, setEmail] = useState("john@example.com");
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
+  // New image pool including original + 3 new images
+  const imagePool = [
+    "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
+    "https://static.robloxden.com/xsmall_black_man_laughing_at_dark_daaedd189d.png",
+    "https://static.robloxden.com/xsmall_funny_dog_face_7fd50d454f.png",
+    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png"
+  ];
+
   useEffect(() => {
     if (darkModeEnabled) {
       document.body.classList.add("dark-mode");
@@ -36,8 +44,11 @@ export default function App() {
     }
   }, [darkModeEnabled]);
 
+  // Randomly add an image from the pool
   const addImage = () => {
-    setImages((imgs) => [...imgs, "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png"]);
+    const randomIndex = Math.floor(Math.random() * imagePool.length);
+    const randomImage = imagePool[randomIndex];
+    setImages((imgs) => [...imgs, randomImage]);
   };
 
   // Sidebar resize logic
