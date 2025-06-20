@@ -124,3 +124,42 @@ body {
 .toggle-button:hover {
   background-color: #666;
 }
+
+/* Toggle switch styles */
+
+.toggle-switch {
+  width: 50px;
+  height: 26px;
+  background-color: #ccc;
+  border-radius: 15px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-switch:hover {
+  background-color: #bbb;
+}
+
+.toggle-thumb {
+  width: 22px;
+  height: 22px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 0 2px rgba(0,0,0,0.2);
+}
+
+.toggle-thumb.active {
+  transform: translateX(24px);
+}
+
+/* Optional: different background color when active */
+.toggle-switch.active {
+  background-color: #4caf50;
+}
