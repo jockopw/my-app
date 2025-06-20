@@ -1,56 +1,59 @@
 import React, { useState } from "react";
-import { Home, User, Settings } from "lucide-react"; // <-- Lucide Icons
-import { AnimatePresence } from "framer-motion";
+import { Home, User, Settings } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
 
+  const tabs = [
+    { name: "home", icon: <Home size={24} />, label: "Home" },
+    { name: "profile", icon: <User size={24} />, label: "Profile" },
+    { name: "settings", icon: <Settings size={24} />, label: "Settings" },
+  ];
+
   return (
-    <div className="container">
-      <div className="tabs">
-        <div className="tooltip-wrapper">
-          <button
-            className={`tab ${activeTab === "home" ? "active" : ""}`}
-            onClick={() => setActiveTab("home")}
-          >
-            <Home size={24} />
-          </button>
-          <span className="tooltip-text">Home</span>
-        </div>
-
-        <div className="tooltip-wrapper">
-          <button
-            className={`tab ${activeTab === "profile" ? "active" : ""}`}
-            onClick={() => setActiveTab("profile")}
-          >
-            <User size={24} />
-          </button>
-          <span className="tooltip-text">Profile</span>
-        </div>
-
-        <div className="tooltip-wrapper">
-          <button
-            className={`tab ${activeTab === "settings" ? "active" : ""}`}
-            onClick={() => setActiveTab("settings")}
-          >
-            <Settings size={24} />
-          </button>
-          <span className="tooltip-text">Settings</span>
-        </div>
-      </div>
+    <motion.div
+      className="container"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      <motion.div
+        className="tabs"
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        {tabs.map((tab) => (
+          <div key={tab.name} className="tooltip-wrapper">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className={activeTab === tab.name ? "tab active" : "tab"}
+              onClick={() => setActiveTab(tab.name)}
+            >
+              {tab.icon}
+            </motion.button>
+            <span className="tooltip-text">{tab.label}</span>
+          </div>
+        ))}
+      </motion.div>
 
       <AnimatePresence mode="wait">
-        {activeTab === "home" && (
-          <div className="tab-content fade-in">This is the Home tab.</div>
-        )}
-        {activeTab === "profile" && (
-          <div className="tab-content fade-in">This is the Profile tab.</div>
-        )}
-        {activeTab === "settings" && (
-          <div className="tab-content fade-in">This is the Settings tab.</div>
-        )}
+        <motion.div
+          key={activeTab}
+          className="tab-content fade-in"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
+          {activeTab === "home" && <p>Welcome to the Home tab!</p>}
+          {activeTab === "profile" && <p>This is your Profile tab.</p>}
+          {activeTab === "settings" && <p>Adjust your Settings here.</p>}
+        </motion.div>
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
