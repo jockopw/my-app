@@ -233,3 +233,13 @@ body.dark-mode .toggle-button:hover {
 .scroll-image:hover {
   transform: scale(1.05);
 }
+
+.scroll-image-vertical {
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.scroll-image-vertical:hover {
+  transform: scale(1.05);
+}
