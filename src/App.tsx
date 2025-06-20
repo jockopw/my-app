@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Home, User, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { shell } from "@tauri-apps/api";
 import "./styles.css";
 
 export default function App() {
@@ -139,23 +138,6 @@ export default function App() {
                   }}
                 >
                   Save Profile
-                </button>
-
-                <hr style={{ margin: "20px 0" }} />
-
-                <button
-                  type="button"
-                  style={{
-                    padding: "8px 16px",
-                    borderRadius: "6px",
-                    border: "none",
-                    backgroundColor: "#28a745",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => shell.open("https://google.com")}
-                >
-                  Open Google.com
                 </button>
               </form>
             )}
