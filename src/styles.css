@@ -17,52 +17,45 @@ body {
   justify-content: center;
   gap: 10px;
   margin-bottom: 20px;
-  border-bottom: 2px solid #555; /* underline for the tab bar */
+  flex-wrap: wrap;
 }
 
 .tab {
-  background-color: transparent; /* make background transparent */
-  border: none;
+  background-color: #222;
+  border: 1px solid #444;
   padding: 10px 20px;
   color: white;
   cursor: pointer;
-  border-radius: 0;
-  font-weight: normal;
-  position: relative;
-  transition: color 0.2s ease;
-}
-
-.tab:hover {
-  color: #aaa;
-  transform: scale(1.05);
+  border-radius: 8px;
+  transition: background 0.2s ease;
+  min-width: 100px;
+  text-align: center;
+  user-select: none;
 }
 
 .tab.active {
-  color: #fff;
+  background-color: #333;
+  border-color: #555;
   font-weight: bold;
 }
 
-.tab.active::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-color: #0af; /* blue underline for active tab */
-  border-radius: 3px 3px 0 0;
+.tab.add {
+  background-color: #333;
+  border: 2px dashed #666;
+  font-size: 0.95rem;
 }
 
 .tab-content {
   font-size: 1.2rem;
   margin-top: 20px;
-  padding: 1rem;
   background: #111;
-  border-radius: 4px;
+  padding: 20px;
+  border-radius: 10px;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
-.fade-in {
-  animation: fadeIn 0.4s ease-in-out;
+.tab:hover {
+  background-color: #333;
 }
 
 @keyframes fadeIn {
@@ -76,10 +69,14 @@ body {
   }
 }
 
-/* Add tab button style (optional) */
-.tab.add {
-  background-color: #222;
-  font-size: 1.2rem;
+.tab-edit-input {
+  background-color: #111;
+  border: none;
   color: white;
-  border-radius: 5px;
+  font-size: 1rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  width: 100px;
+  text-align: center;
+  outline: none;
 }
