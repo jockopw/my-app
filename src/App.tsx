@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Home,
-  User,
-  Settings,
-  X,
-  ZoomIn,
-  ZoomOut,
-  RefreshCw,
-  RotateCw,
-} from "lucide-react";
+import { Home, User, Settings, X, ZoomIn, ZoomOut, RefreshCw, RotateCw } from "lucide-react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import "./styles.css";
 
@@ -20,14 +11,14 @@ export default function App() {
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
-    null
-  );
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(180);
 
   const controls = useAnimation();
 
   const isDraggingSidebar = useRef(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
@@ -47,21 +38,8 @@ export default function App() {
     }
   }, [darkModeEnabled]);
 
-  useEffect(() => {
-    controls.start({
-      scale: zoom,
-      rotate: rotation,
-      x: dragOffset.x,
-      y: dragOffset.y,
-      transition: { type: "spring", stiffness: 300, damping: 30 },
-    });
-  }, [zoom, rotation, dragOffset, controls]);
-
   const addImage = () => {
-    setImages((imgs) => [
-      ...imgs,
-      "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
-    ]);
+    setImages((imgs) => [...imgs, "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png"]);
   };
 
   // Sidebar resize logic
@@ -114,6 +92,17 @@ export default function App() {
       window.removeEventListener("mouseup", stopModalDrag);
     };
   }, [dragStart]);
+
+  // Animate zoom, rotate, and dragOffset changes smoothly
+  useEffect(() => {
+    controls.start({
+      scale: zoom,
+      rotate: rotation,
+      x: dragOffset.x,
+      y: dragOffset.y,
+      transition: { type: "spring", stiffness: 300, damping: 30 },
+    });
+  }, [zoom, rotation, dragOffset, controls]);
 
   return (
     <motion.div
@@ -183,13 +172,7 @@ export default function App() {
                   }}
                 >
                   {images.length === 0 && (
-                    <p
-                      style={{
-                        color: "#777",
-                        fontSize: 14,
-                        textAlign: "center",
-                      }}
-                    >
+                    <p style={{ color: "#777", fontSize: 14, textAlign: "center" }}>
                       No images yet
                     </p>
                   )}
@@ -315,11 +298,7 @@ export default function App() {
                       }
                     }}
                   >
-                    <div
-                      className={`toggle-thumb ${
-                        darkModeEnabled ? "active" : ""
-                      }`}
-                    />
+                    <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
                   </div>
                 </label>
               </div>
@@ -328,7 +307,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Modal preview */}
       <AnimatePresence>
         {previewImage && (
           <motion.div
@@ -351,28 +329,25 @@ export default function App() {
             onClick={() => setPreviewImage(null)}
           >
             <div
+              ref={modalRef}
               style={{
-                position: "relative",
+                position: "absolute",
+                top: `calc(50% + ${dragOffset.y}px)`,
+                left: `calc(50% + ${dragOffset.x}px)`,
+                transform: "translate(-50%, -50%)",
+                zIndex: 10000,
                 cursor: dragStart ? "grabbing" : "grab",
-                userSelect: "none",
-                maxWidth: "80vw",
-                maxHeight: "80vh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexDirection: "column",
-                gap: 10,
               }}
-              onClick={(e) => e.stopPropagation()}
               onMouseDown={startModalDrag}
+              onClick={(e) => e.stopPropagation()}
             >
-              {/* Control buttons */}
               <div
                 style={{
+                  position: "absolute",
+                  top: -40,
+                  right: -40,
                   display: "flex",
                   gap: 10,
-                  marginBottom: 8,
-                  justifyContent: "center",
                 }}
               >
                 <button
@@ -416,7 +391,6 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Draggable image */}
               <motion.img
                 src={previewImage}
                 alt="Preview"
