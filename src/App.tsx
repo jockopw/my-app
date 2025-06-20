@@ -1,37 +1,20 @@
-// src/App.tsx
-
 import React, { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
 export default function App() {
   const [tabs, setTabs] = useState([
-    { id: "home", label: "Home", content: "Welcome to the Home tab!" },
-    { id: "profile", label: "Profile", content: "This is your Profile tab." },
-    { id: "settings", label: "Settings", content: "Adjust your Settings here." },
+    { id: "home", label: "Home" },
+    { id: "profile", label: "Profile" },
+    { id: "settings", label: "Settings" },
   ]);
-
   const [activeTab, setActiveTab] = useState("home");
 
-  const addTab = () => {
-    const newId = `tab-${Date.now()}`;
-    const newLabel = prompt("Name your new tab:");
-    if (newLabel) {
-      setTabs([...tabs, { id: newId, label: newLabel, content: `Content for ${newLabel}` }]);
-      setActiveTab(newId);
-    }
-  };
-
-  const renameTab = (id: string) => {
-    const newLabel = prompt("Rename this tab:");
-    if (newLabel) {
-      setTabs((prevTabs) =>
-        prevTabs.map((tab) =>
-          tab.id === id ? { ...tab, label: newLabel, content: `Content for ${newLabel}` } : tab
-        )
-      );
-    }
-  };
+  function addTab() {
+    const newId = `tab${tabs.length + 1}`;
+    setTabs([...tabs, { id: newId, label: "New Tab" }]);
+    setActiveTab(newId);
+  }
 
   return (
     <div className="container">
@@ -43,34 +26,34 @@ export default function App() {
             whileTap={{ scale: 0.95 }}
             className={activeTab === tab.id ? "tab active" : "tab"}
             onClick={() => setActiveTab(tab.id)}
-            onDoubleClick={() => renameTab(tab.id)}
           >
             {tab.label}
           </motion.button>
         ))}
         <motion.button
+          className="tab add"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="tab add"
           onClick={addTab}
         >
-          ＋
+          + Add Tab
         </motion.button>
       </div>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence exitBeforeEnter>
         {tabs.map(
           (tab) =>
-            tab.id === activeTab && (
+            activeTab === tab.id && (
               <motion.div
                 key={tab.id}
                 className="tab-content"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
               >
-                {tab.content}
+                <h2>{tab.label}</h2>
+                <p>This is the content for the "{tab.label}" tab.</p>
               </motion.div>
             )
         )}
