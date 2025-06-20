@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Home, User, Settings, X, ZoomIn, ZoomOut, RefreshCw, RotateCw } from "lucide-react";
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
 export default function App() {
@@ -13,8 +13,6 @@ export default function App() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(180);
-
-  const controls = useAnimation();
 
   const isDraggingSidebar = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -92,17 +90,6 @@ export default function App() {
       window.removeEventListener("mouseup", stopModalDrag);
     };
   }, [dragStart]);
-
-  // Animate zoom, rotate, and dragOffset changes smoothly
-  useEffect(() => {
-    controls.start({
-      scale: zoom,
-      rotate: rotation,
-      x: dragOffset.x,
-      y: dragOffset.y,
-      transition: { type: "spring", stiffness: 300, damping: 30 },
-    });
-  }, [zoom, rotation, dragOffset, controls]);
 
   return (
     <motion.div
@@ -350,70 +337,32 @@ export default function App() {
                   gap: 10,
                 }}
               >
-                <button
-                  onClick={() => setZoom((z) => Math.min(z + 0.2, 5))}
-                  className="circle-button"
-                  aria-label="Zoom In"
-                >
-                  <ZoomIn />
-                </button>
-                <button
-                  onClick={() => setZoom((z) => Math.max(z - 0.2, 0.1))}
-                  className="circle-button"
-                  aria-label="Zoom Out"
-                >
-                  <ZoomOut />
-                </button>
-                <button
-                  onClick={() => setRotation((r) => r + 90)}
-                  className="circle-button"
-                  aria-label="Rotate"
-                >
-                  <RotateCw />
-                </button>
-                <button
-                  onClick={() => {
-                    setZoom(1);
-                    setRotation(0);
-                    setDragOffset({ x: 0, y: 0 });
-                  }}
-                  className="circle-button"
-                  aria-label="Reset"
-                >
-                  <RefreshCw />
-                </button>
-                <button
-                  onClick={() => setPreviewImage(null)}
-                  className="circle-button"
-                  aria-label="Close"
-                >
-                  <X />
-                </button>
+                <button onClick={() => setZoom((z) => z + 0.1)}><ZoomIn color="white" /></button>
+                <button onClick={() => setZoom((z) => Math.max(0.1, z - 0.1))}><ZoomOut color="white" /></button>
+                <button onClick={() => setRotation((r) => r + 90)}><RotateCw color="white" /></button>
+                <button onClick={() => { setZoom(1); setRotation(0); }}><RefreshCw color="white" /></button>
+                <button onClick={() => setPreviewImage(null)}><X color="white" /></button>
               </div>
 
               <motion.img
                 src={previewImage}
                 alt="Preview"
-                drag
-                dragMomentum={false}
-                dragElastic={0.2}
-                dragConstraints={{ top: -300, bottom: 300, left: -300, right: 300 }}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3 }}
                 onDoubleClick={() => {
                   setZoom(1);
                   setRotation(0);
-                  setDragOffset({ x: 0, y: 0 });
                 }}
-                animate={controls}
-                initial={{ scale: 0.8, opacity: 0 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ duration: 0.3 }}
                 style={{
                   maxWidth: "80vw",
                   maxHeight: "80vh",
+                  transform: `scale(${zoom}) rotate(${rotation}deg)`,
                   borderRadius: 12,
                   boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
                   userSelect: "none",
-                  cursor: dragStart ? "grabbing" : "grab",
+                  pointerEvents: "none",
                 }}
               />
             </div>
