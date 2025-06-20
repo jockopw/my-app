@@ -53,6 +53,7 @@ export default function App() {
       <button
         className="toggle-button"
         onClick={() => setTabsVisible((prev) => !prev)}
+        style={{ marginBottom: 10 }}
       >
         {tabsVisible ? "Hide General Settings" : "Show General Settings"}
       </button>
@@ -92,62 +93,65 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
+            style={{ display: "flex" }}
           >
             {activeTab === "home" && (
-              <div>
-                <h2>Welcome Home!</h2>
-                <p>This is your dashboard where you can start your day.</p>
-                <button
+              <>
+                {/* Vertical scrollable images container on the left */}
+                <div
+                  className="scroll-container-vertical"
                   style={{
-                    padding: "8px 16px",
-                    borderRadius: "6px",
-                    border: "none",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
-                    cursor: "pointer",
+                    width: 150,
+                    height: "calc(100vh - 150px)",
+                    overflowY: "auto",
+                    marginRight: 20,
+                    borderRight: "1px solid #444",
+                    paddingRight: 10,
                   }}
-                  onClick={addImage}
                 >
-                  Start Something
-                </button>
-
-                {images.length > 0 && (
-                  <div className="scroll-container" style={{ marginTop: 20 }}>
-                    {images.map((src, i) => (
-                      <img
-                        key={i}
-                        src={src}
-                        alt={`Image ${i}`}
-                        className="scroll-image"
-                        onClick={() => setPreviewImage(src)}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {/* Preview Modal */}
-                <AnimatePresence>
-                  {previewImage && (
-                    <motion.div
-                      className="modal-overlay"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      onClick={() => setPreviewImage(null)}
-                    >
-                      <motion.img
-                        src={previewImage}
-                        alt="Preview"
-                        className="modal-image"
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0.8 }}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </motion.div>
+                  {images.length === 0 && (
+                    <p style={{ color: "#777", fontSize: 14, textAlign: "center" }}>
+                      No images yet
+                    </p>
                   )}
-                </AnimatePresence>
-              </div>
+                  {images.map((src, i) => (
+                    <img
+                      key={i}
+                      src={src}
+                      alt={`Image ${i}`}
+                      className="scroll-image-vertical"
+                      onClick={() => setPreviewImage(src)}
+                      style={{
+                        width: "100%",
+                        height: 120,
+                        objectFit: "cover",
+                        cursor: "pointer",
+                        marginBottom: 12,
+                        borderRadius: 8,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Main content on right */}
+                <div style={{ flex: 1 }}>
+                  <h2>Welcome Home!</h2>
+                  <p>This is your dashboard where you can start your day.</p>
+                  <button
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      border: "none",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      cursor: "pointer",
+                    }}
+                    onClick={addImage}
+                  >
+                    Start Something
+                  </button>
+                </div>
+              </>
             )}
 
             {activeTab === "profile" && (
@@ -156,6 +160,7 @@ export default function App() {
                   e.preventDefault();
                   alert(`Profile saved for ${name} (${email})`);
                 }}
+                style={{ width: "100%" }}
               >
                 <h2>Your Profile</h2>
 
@@ -197,7 +202,7 @@ export default function App() {
             )}
 
             {activeTab === "settings" && (
-              <div>
+              <div style={{ width: "100%" }}>
                 <h2>Settings</h2>
 
                 <label style={{ display: "block", marginBottom: 20 }}>
@@ -246,6 +251,49 @@ export default function App() {
                 </button>
               </div>
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal preview */}
+      <AnimatePresence>
+        {previewImage && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, backdropFilter: "blur(6px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setPreviewImage(null)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              backgroundColor: "rgba(0,0,0,0.3)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 9999,
+              cursor: "pointer",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+            }}
+          >
+            <motion.img
+              src={previewImage}
+              alt="Preview"
+              className="modal-image"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                maxWidth: "90vw",
+                maxHeight: "90vh",
+                borderRadius: 12,
+                boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
+              }}
+            />
           </motion.div>
         )}
       </AnimatePresence>
