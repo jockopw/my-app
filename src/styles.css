@@ -25,7 +25,91 @@ body {
   border: 1px solid #444;
   padding: 10px 20px;
   color: white;
-  cur.container {
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+  min-width: 100px;
+  text-align: center;
+  user-select: none;
+}
+
+.tab.active {
+  background-color: #333;
+  border-color: #555;
+  font-weight: bold;
+}
+
+.tab.add {
+  background-color: #333;
+  border: 2px dashed #666;
+  font-size: 0.95rem;
+}
+
+.tab-content {
+  font-size: 1.2rem;
+  margin-top: 20px;
+  background: #111;
+  padding: 20px;
+  border-radius: 10px;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.tab:hover {
+  background-color: #333;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-edit-input {
+  background-color: #111;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  width: 100px;
+  text-align: center;
+  outline: none;
+}
+
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  border-radius: 4px;
+  padding: 4px 8px;
+  position: absolute;
+  z-index: 1;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.tooltip-wrapper:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.container {
   max-width: 600px;
   margin: 20px; /* Add some margin to avoid sticking to edge */
   text-align: left; /* Align content to the left */
