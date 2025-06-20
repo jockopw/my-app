@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Home, User, Settings, RotateCw } from "lucide-react";
+import { Home, User, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
@@ -328,17 +328,7 @@ export default function App() {
               onMouseDown={startModalDrag}
               onClick={(e) => e.stopPropagation()}
             >
-              <div
-                style={{
-                  position: "absolute",
-                  top: -40,
-                  right: -40,
-                  display: "flex",
-                  gap: 10,
-                }}
-              >
-                <button onClick={() => setRotation((r) => r + 90)}><RotateCw color="white" /></button>
-              </div>
+              {/* All buttons removed */}
 
               <motion.img
                 src={previewImage}
