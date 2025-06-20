@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Home, User, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
@@ -8,6 +8,9 @@ export default function App() {
   const [tabsVisible, setTabsVisible] = useState(true);
   const [images, setImages] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [sidebarWidth, setSidebarWidth] = useState(180);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
 
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
@@ -17,7 +20,6 @@ export default function App() {
 
   const [name, setName] = useState("John Doe");
   const [email, setEmail] = useState("john@example.com");
-
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
   useEffect(() => {
@@ -34,18 +36,36 @@ export default function App() {
     setImages((imgs) => [...imgs, newImage]);
   };
 
-  // Close preview modal on ESC key
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setPreviewImage(null);
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      const newWidth = e.clientX;
+      if (newWidth >= 100 && newWidth <= 500) {
+        setSidebarWidth(newWidth);
+      }
     };
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
+
+    const stopDragging = () => {
+      isDragging.current = false;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", stopDragging);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", stopDragging);
+    };
   }, []);
+
+  const startDragging = () => {
+    isDragging.current = true;
+  };
 
   return (
     <motion.div
       className="container"
+      style={{ overflow: "hidden" }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -93,24 +113,32 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            style={{ display: "flex" }}
+            style={{ display: "flex", overflow: "hidden", height: "100%" }}
           >
             {activeTab === "home" && (
               <>
-                {/* Vertical scrollable images container on the left */}
                 <div
+                  ref={sidebarRef}
                   className="scroll-container-vertical"
                   style={{
-                    width: 150,
-                    height: "calc(100vh - 150px)",
+                    width: sidebarWidth,
                     overflowY: "auto",
-                    marginRight: 20,
+                    height: "calc(100vh - 160px)",
                     borderRight: "1px solid #444",
                     paddingRight: 10,
+                    resize: "horizontal",
+                    position: "relative",
+                    flexShrink: 0,
                   }}
                 >
                   {images.length === 0 && (
-                    <p style={{ color: "#777", fontSize: 14, textAlign: "center" }}>
+                    <p
+                      style={{
+                        color: "#777",
+                        fontSize: 14,
+                        textAlign: "center",
+                      }}
+                    >
                       No images yet
                     </p>
                   )}
@@ -131,10 +159,22 @@ export default function App() {
                       }}
                     />
                   ))}
+                  {/* Resizer handle */}
+                  <div
+                    onMouseDown={startDragging}
+                    style={{
+                      width: 6,
+                      cursor: "ew-resize",
+                      position: "absolute",
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      backgroundColor: "#6666",
+                    }}
+                  />
                 </div>
 
-                {/* Main content on right */}
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, paddingLeft: 20 }}>
                   <h2>Welcome Home!</h2>
                   <p>This is your dashboard where you can start your day.</p>
                   <button
@@ -148,7 +188,7 @@ export default function App() {
                     }}
                     onClick={addImage}
                   >
-                    Start Something
+                    Get Image
                   </button>
                 </div>
               </>
@@ -163,7 +203,6 @@ export default function App() {
                 style={{ width: "100%" }}
               >
                 <h2>Your Profile</h2>
-
                 <label>
                   Name:
                   <input
@@ -204,7 +243,6 @@ export default function App() {
             {activeTab === "settings" && (
               <div style={{ width: "100%" }}>
                 <h2>Settings</h2>
-
                 <label style={{ display: "block", marginBottom: 20 }}>
                   <span style={{ marginRight: 12, verticalAlign: "middle" }}>
                     White Mode & Dark Mode
@@ -229,7 +267,6 @@ export default function App() {
                     />
                   </div>
                 </label>
-
                 <button
                   onClick={() =>
                     alert(
@@ -255,14 +292,14 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Modal preview */}
+      {/* Image Preview Modal */}
       <AnimatePresence>
         {previewImage && (
           <motion.div
             className="modal-overlay"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1, backdropFilter: "blur(6px)" }}
-            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={() => setPreviewImage(null)}
             style={{
@@ -281,7 +318,6 @@ export default function App() {
             <motion.img
               src={previewImage}
               alt="Preview"
-              className="modal-image"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
