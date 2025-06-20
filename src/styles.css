@@ -247,3 +247,29 @@ body.dark-mode .toggle-button:hover {
 .scroll-container-vertical {
   transition: width 0.2s ease;
 }
+
+.circle-button {
+  background-color: black;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.circle-button:hover {
+  background-color: #222;
+}
+
+.circle-button svg {
+  stroke: white;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
