@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Home, User, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
@@ -13,12 +13,19 @@ export default function App() {
     { name: "settings", icon: <Settings size={24} />, label: "Settings" },
   ];
 
-  // Profile form state
   const [name, setName] = useState("John Doe");
   const [email, setEmail] = useState("john@example.com");
 
-  // Settings toggle state
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+
+  // Apply or remove dark mode CSS class on body
+  useEffect(() => {
+    if (darkModeEnabled) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, [darkModeEnabled]);
 
   return (
     <motion.div
@@ -26,7 +33,6 @@ export default function App() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
-      data-theme={darkModeEnabled ? "dark" : "light"} // optional attribute for styling
     >
       <button
         className="toggle-button"
@@ -71,7 +77,6 @@ export default function App() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            {/* Home Tab */}
             {activeTab === "home" && (
               <div>
                 <h2>Welcome Home!</h2>
@@ -92,7 +97,6 @@ export default function App() {
               </div>
             )}
 
-            {/* Profile Tab */}
             {activeTab === "profile" && (
               <form
                 onSubmit={(e) => {
@@ -139,14 +143,13 @@ export default function App() {
               </form>
             )}
 
-            {/* Settings Tab */}
             {activeTab === "settings" && (
               <div>
                 <h2>Settings</h2>
 
                 <label style={{ display: "block", marginBottom: 20 }}>
                   <span style={{ marginRight: 12, verticalAlign: "middle" }}>
-                    Dark Mode
+                    White Mode & Dark Mode
                   </span>
                   <div
                     className="toggle-switch"
@@ -172,7 +175,7 @@ export default function App() {
                 <button
                   onClick={() =>
                     alert(
-                      `Dark Mode is now ${darkModeEnabled ? "Enabled" : "Disabled"}`
+                      `Mode is now ${darkModeEnabled ? "Dark Mode" : "White Mode"}`
                     )
                   }
                   style={{
