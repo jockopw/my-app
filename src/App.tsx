@@ -19,7 +19,7 @@ export default function App() {
 
   const addTab = () => {
     const newId = `tab-${Date.now()}`;
-    const newTab = { id: newId, title: "New Tab", content: "New tab content." };
+    const newTab = { id: newId, title: "fugle", content: "New tab content." };
     setTabs([...tabs, newTab]);
     setActiveTabId(newId);
   };
