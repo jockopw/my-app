@@ -29,7 +29,6 @@ export default function App() {
 
   const isDraggingSidebar = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
@@ -185,7 +184,13 @@ export default function App() {
                   }}
                 >
                   {images.length === 0 && (
-                    <p style={{ color: "#777", fontSize: 14, textAlign: "center" }}>
+                    <p
+                      style={{
+                        color: "#777",
+                        fontSize: 14,
+                        textAlign: "center",
+                      }}
+                    >
                       No images yet
                     </p>
                   )}
@@ -311,7 +316,11 @@ export default function App() {
                       }
                     }}
                   >
-                    <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
+                    <div
+                      className={`toggle-thumb ${
+                        darkModeEnabled ? "active" : ""
+                      }`}
+                    />
                   </div>
                 </label>
               </div>
@@ -320,6 +329,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* --- Modal Preview Section --- */}
       <AnimatePresence>
         {previewImage && (
           <motion.div
@@ -342,26 +352,27 @@ export default function App() {
             onClick={() => setPreviewImage(null)}
           >
             <div
-              ref={modalRef}
               style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                zIndex: 10000,
+                position: "relative",
                 cursor: dragStart ? "grabbing" : "grab",
                 userSelect: "none",
+                maxWidth: "80vw",
+                maxHeight: "80vh",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "column",
+                gap: 10,
               }}
-              onMouseDown={startModalDrag}
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Control buttons */}
               <div
                 style={{
-                  position: "absolute",
-                  top: -50,
-                  right: -50,
                   display: "flex",
                   gap: 10,
+                  marginBottom: 8,
+                  justifyContent: "center",
                 }}
               >
                 <button
@@ -405,13 +416,14 @@ export default function App() {
                 </button>
               </div>
 
+              {/* Draggable image */}
               <motion.img
                 src={previewImage}
                 alt="Preview"
                 drag
                 dragMomentum={false}
                 dragElastic={0.2}
-                dragConstraints={{ top: -1000, bottom: 1000, left: -1000, right: 1000 }}
+                dragConstraints={{ top: -300, bottom: 300, left: -300, right: 300 }}
                 onDoubleClick={() => {
                   setZoom(1);
                   setRotation(0);
@@ -421,12 +433,6 @@ export default function App() {
                 initial={{ scale: 0.8, opacity: 0 }}
                 exit={{ scale: 0.8, opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                onDragEnd={(e, info) => {
-                  setDragOffset((offset) => ({
-                    x: offset.x + info.point.x,
-                    y: offset.y + info.point.y,
-                  }));
-                }}
                 style={{
                   maxWidth: "80vw",
                   maxHeight: "80vh",
@@ -442,4 +448,33 @@ export default function App() {
       </AnimatePresence>
     </motion.div>
   );
+}
+Add this CSS to your styles.css file:
+css
+Copy
+Edit
+.circle-button {
+  background-color: black;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.circle-button:hover {
+  background-color: #222;
+}
+
+.circle-button svg {
+  stroke: white;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
 }
