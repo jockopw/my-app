@@ -54,9 +54,8 @@ body {
 .tab-content {
   font-size: 1.2rem;
   margin-top: 20px;
-  background: #111;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 0;
+  border-radius: 0;
   animation: fadeIn 0.4s ease-in-out;
 }
 
