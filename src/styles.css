@@ -1,23 +1,120 @@
-/* ========== Your existing styles (keep all these) ========== */
-
-/* Example base styles, replace these with your actual existing CSS */
 body {
+  background-color: black;
+  color: white;
+  font-family: sans-serif;
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
-  color: #333;
+  padding: 20px;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+body.dark-mode {
+  background-color: white;
+  color: black;
 }
 
 .container {
-  padding: 20px;
+  max-width: 600px;
+  margin: 20px;
+  text-align: left;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-/* ... your existing CSS continues here ... */
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
 
-/* Tooltip styles */
 .tooltip-wrapper {
-  position: relative;
   display: inline-block;
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.tab {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #222;
+  border: 1px solid #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  user-select: none;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body.dark-mode .tab {
+  background-color: #ddd;
+  border: 1px solid #aaa;
+  color: black;
+}
+
+.tab.active {
+  background-color: #333;
+  border-color: #555;
+  font-weight: bold;
+}
+
+body.dark-mode .tab.active {
+  background-color: #bbb;
+  border-color: #888;
+}
+
+.tab-content {
+  font-size: 1.2rem;
+  margin-top: 20px;
+  padding: 0;
+  border-radius: 0;
+  animation: fadeIn 0.4s ease-in-out;
+  transition: color 0.5s ease;
+}
+
+.tab:hover {
+  background-color: #333;
+}
+
+body.dark-mode .tab:hover {
+  background-color: #ccc;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tab-edit-input {
+  background-color: #111;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  width: 100px;
+  text-align: center;
+  outline: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode .tab-edit-input {
+  background-color: #eee;
+  color: #111;
+  border: 1px solid #ccc;
 }
 
 .tooltip-text {
@@ -32,95 +129,136 @@ body {
   bottom: -32px;
   left: 50%;
   transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  font-size: 0.75rem;
   white-space: nowrap;
-  font-size: 12px;
 }
 
 .tooltip-wrapper:hover .tooltip-text {
   visibility: visible;
+  opacity: 1;
 }
 
-/* Tabs styling */
-.tabs {
-  display: flex;
-  gap: 10px;
-}
-
-.tab {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: 6px;
-  color: #666;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.tab.active {
-  background-color: #007bff;
-  color: white;
-}
-
-/* Toggle button */
 .toggle-button {
+  background-color: #555;
+  color: white;
+  border: none;
   padding: 8px 16px;
   border-radius: 6px;
-  border: none;
-  background-color: #007bff;
-  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.toggle-button:hover {
+  background-color: #666;
+}
+
+body.dark-mode .toggle-button {
+  background-color: #aaa;
+  color: black;
+}
+
+body.dark-mode .toggle-button:hover {
+  background-color: #999;
+}
+
+/* Toggle switch styles */
+
+.toggle-switch {
+  width: 50px;
+  height: 26px;
+  background-color: #ccc;
+  border-radius: 15px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-switch:hover {
+  background-color: #bbb;
+}
+
+.toggle-thumb {
+  width: 22px;
+  height: 22px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 0 2px rgba(0,0,0,0.2);
+}
+
+.toggle-thumb.active {
+  transform: translateX(24px);
+}
+
+/* Scrollable images container */
+
+.scroll-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+}
+
+.scroll-image {
+  flex-shrink: 0;
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
   cursor: pointer;
 }
 
-/* Scroll container vertical */
-.scroll-container-vertical {
-  background: #fff;
-  border-radius: 8px;
+.scroll-image:hover {
+  transform: scale(1.05);
 }
 
-/* Scroll images */
-.scroll-image-vertical {
-  border-radius: 8px;
-  user-select: none;
-}
-
-/* Modal overlay */
+/* Modal Overlay */
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.8);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  cursor: pointer;
 }
 
-/* ========== ADDITIONAL BUTTON STYLES YOU ASKED FOR ========== */
-
-.circle-button {
-  background-color: black;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  padding: 0;
-  color: white;
-  transition: background-color 0.2s ease;
+/* Modal Image */
+.modal-image {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+  cursor: auto;
   user-select: none;
 }
 
-.circle-button:hover {
-  background-color: #222;
-}
-
-.circle-button svg {
-  stroke: white;
-  width: 20px;
-  height: 20px;
-  pointer-events: none;
+.scroll-container-vertical {
+  transition: width 0.2s ease;
 }
