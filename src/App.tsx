@@ -7,6 +7,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const [tabsVisible, setTabsVisible] = useState(true);
   const [images, setImages] = useState<string[]>([]);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
@@ -28,10 +29,19 @@ export default function App() {
   }, [darkModeEnabled]);
 
   const addImage = () => {
-    const randomId = Math.floor(Math.random() * 1000);
-    const url = `https://source.unsplash.com/collection/190727/200x150?sig=${randomId}`;
-    setImages((imgs) => [...imgs, url]);
+    const newImage =
+      "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png";
+    setImages((imgs) => [...imgs, newImage]);
   };
+
+  // Close preview modal on ESC key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPreviewImage(null);
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
 
   return (
     <motion.div
@@ -107,12 +117,36 @@ export default function App() {
                       <img
                         key={i}
                         src={src}
-                        alt={`Random ${i}`}
+                        alt={`Image ${i}`}
                         className="scroll-image"
+                        onClick={() => setPreviewImage(src)}
                       />
                     ))}
                   </div>
                 )}
+
+                {/* Preview Modal */}
+                <AnimatePresence>
+                  {previewImage && (
+                    <motion.div
+                      className="modal-overlay"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setPreviewImage(null)}
+                    >
+                      <motion.img
+                        src={previewImage}
+                        alt="Preview"
+                        className="modal-image"
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0.8 }}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             )}
 
