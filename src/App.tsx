@@ -15,8 +15,8 @@ export default function App() {
     { id: "settings", title: "Settings", content: "Adjust your Settings here." },
   ]);
   const [activeTabId, setActiveTabId] = useState("home");
+  const [editingTabId, setEditingTabId] = useState<string | null>(null);
 
-  // Add new tab
   const addTab = () => {
     const newId = `tab-${Date.now()}`;
     const newTab = { id: newId, title: "New Tab", content: "New tab content." };
@@ -24,40 +24,45 @@ export default function App() {
     setActiveTabId(newId);
   };
 
-  // Rename tab handler
   const renameTab = (id: string, newTitle: string) => {
-    setTabs(
-      tabs.map((tab) =>
-        tab.id === id ? { ...tab, title: newTitle } : tab
-      )
-    );
+    setTabs(tabs.map(tab => (tab.id === id ? { ...tab, title: newTitle } : tab)));
   };
 
   return (
     <div className="container">
       <div className="tabs">
-        {tabs.map((tab) => (
-          <motion.button
+        {tabs.map(tab => (
+          <motion.div
             key={tab.id}
+            className={`tab ${activeTabId === tab.id ? "active" : ""}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={activeTabId === tab.id ? "tab active" : "tab"}
             onClick={() => setActiveTabId(tab.id)}
+            onDoubleClick={() => setEditingTabId(tab.id)}
           >
-            <input
-              value={tab.title}
-              onClick={(e) => e.stopPropagation()} // prevent switching tab when renaming
-              onChange={(e) => renameTab(tab.id, e.target.value)}
-              className="tab-input"
-            />
-          </motion.button>
+            {editingTabId === tab.id ? (
+              <input
+                autoFocus
+                className="tab-edit-input"
+                value={tab.title}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => renameTab(tab.id, e.target.value)}
+                onBlur={() => setEditingTabId(null)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") setEditingTabId(null);
+                }}
+              />
+            ) : (
+              tab.title
+            )}
+          </motion.div>
         ))}
         <button className="tab add" onClick={addTab}>
           + Add Tab
         </button>
       </div>
 
-      <AnimatePresence exitBeforeEnter>
+      <AnimatePresence mode="wait">
         {tabs
           .filter((tab) => tab.id === activeTabId)
           .map((tab) => (
