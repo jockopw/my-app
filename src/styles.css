@@ -8,41 +8,47 @@ body {
 
 .container {
   max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
+  margin: 20px;
+  text-align: left;
 }
 
 .tabs {
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 20px;
-  flex-wrap: wrap;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+
+.tooltip-wrapper {
+  display: inline-block;
+  position: relative;
+  width: 48px;
+  height: 48px;
 }
 
 .tab {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   background-color: #222;
   border: 1px solid #444;
-  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
   cursor: pointer;
-  border-radius: 8px;
   transition: background 0.2s ease;
-  min-width: 100px;
-  text-align: center;
   user-select: none;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .tab.active {
   background-color: #333;
   border-color: #555;
   font-weight: bold;
-}
-
-.tab.add {
-  background-color: #333;
-  border: 2px dashed #666;
-  font-size: 0.95rem;
 }
 
 .tab-content {
@@ -81,11 +87,6 @@ body {
   outline: none;
 }
 
-.tooltip-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
 .tooltip-text {
   visibility: hidden;
   background-color: #333;
@@ -107,43 +108,4 @@ body {
 .tooltip-wrapper:hover .tooltip-text {
   visibility: visible;
   opacity: 1;
-}
-
-.container {
-  max-width: 600px;
-  margin: 20px; /* Add some margin to avoid sticking to edge */
-  text-align: left; /* Align content to the left */
-}
-
-/* Position tabs top-left */
-.tabs {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-  justify-content: flex-start; /* Align tabs left */
-  flex-wrap: nowrap;
-}
-
-/* Circular tab buttons */
-.tab {
-  background-color: #222;
-  border: 1px solid #444;
-  width: 48px;
-  height: 48px;
-  color: white;
-  cursor: pointer;
-  border-radius: 50%; /* Circular */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease;
-  user-select: none;
-  padding: 0; /* Remove padding for perfect circle */
-}
-
-/* Active tab */
-.tab.active {
-  background-color: #333;
-  border-color: #555;
-  font-weight: bold;
 }
