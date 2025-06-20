@@ -28,7 +28,6 @@ export default function App() {
   const controls = useAnimation();
 
   const isDraggingSidebar = useRef(false);
-  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
@@ -329,7 +328,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* --- Modal Preview Section --- */}
+      {/* Modal preview */}
       <AnimatePresence>
         {previewImage && (
           <motion.div
@@ -365,6 +364,7 @@ export default function App() {
                 gap: 10,
               }}
               onClick={(e) => e.stopPropagation()}
+              onMouseDown={startModalDrag}
             >
               {/* Control buttons */}
               <div
@@ -448,33 +448,4 @@ export default function App() {
       </AnimatePresence>
     </motion.div>
   );
-}
-Add this CSS to your styles.css file:
-css
-Copy
-Edit
-.circle-button {
-  background-color: black;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  padding: 0;
-  color: white;
-  transition: background-color 0.2s ease;
-}
-
-.circle-button:hover {
-  background-color: #222;
-}
-
-.circle-button svg {
-  stroke: white;
-  width: 20px;
-  height: 20px;
-  pointer-events: none;
 }
