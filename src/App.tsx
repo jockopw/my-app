@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Home, User, Settings } from "lucide-react";
+import { Home, User, Settings, X, ZoomIn, ZoomOut, RefreshCw, RotateCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
@@ -8,9 +8,15 @@ export default function App() {
   const [tabsVisible, setTabsVisible] = useState(true);
   const [images, setImages] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(180);
+
+  const isDraggingSidebar = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
@@ -31,41 +37,64 @@ export default function App() {
   }, [darkModeEnabled]);
 
   const addImage = () => {
-    const newImage =
-      "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png";
-    setImages((imgs) => [...imgs, newImage]);
+    setImages((imgs) => [...imgs, "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png"]);
   };
 
+  // Sidebar resize logic
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging.current) return;
+      if (!isDraggingSidebar.current) return;
       const newWidth = e.clientX;
-      if (newWidth >= 100 && newWidth <= 500) {
-        setSidebarWidth(newWidth);
-      }
+      if (newWidth >= 100 && newWidth <= 500) setSidebarWidth(newWidth);
     };
-
-    const stopDragging = () => {
-      isDragging.current = false;
-    };
+    const stopDragging = () => (isDraggingSidebar.current = false);
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", stopDragging);
-
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", stopDragging);
     };
   }, []);
 
-  const startDragging = () => {
-    isDragging.current = true;
+  const startSidebarDrag = () => (isDraggingSidebar.current = true);
+
+  // Modal drag logic
+  const startModalDrag = (e: React.MouseEvent) => {
+    setDragStart({ x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y });
   };
+
+  const onModalDrag = (e: MouseEvent) => {
+    if (dragStart) {
+      setDragOffset({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      });
+    }
+  };
+
+  const stopModalDrag = () => {
+    setDragStart(null);
+  };
+
+  useEffect(() => {
+    if (dragStart) {
+      window.addEventListener("mousemove", onModalDrag);
+      window.addEventListener("mouseup", stopModalDrag);
+    } else {
+      window.removeEventListener("mousemove", onModalDrag);
+      window.removeEventListener("mouseup", stopModalDrag);
+    }
+    return () => {
+      window.removeEventListener("mousemove", onModalDrag);
+      window.removeEventListener("mouseup", stopModalDrag);
+    };
+  }, [dragStart]);
 
   return (
     <motion.div
       className="container"
-      style={{ overflow: "hidden" }}
+      style={{ overflow: "hidden", height: "100vh" }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -118,7 +147,6 @@ export default function App() {
             {activeTab === "home" && (
               <>
                 <div
-                  ref={sidebarRef}
                   className="scroll-container-vertical"
                   style={{
                     width: sidebarWidth,
@@ -126,19 +154,12 @@ export default function App() {
                     height: "calc(100vh - 160px)",
                     borderRight: "1px solid #444",
                     paddingRight: 10,
-                    resize: "horizontal",
                     position: "relative",
                     flexShrink: 0,
                   }}
                 >
                   {images.length === 0 && (
-                    <p
-                      style={{
-                        color: "#777",
-                        fontSize: 14,
-                        textAlign: "center",
-                      }}
-                    >
+                    <p style={{ color: "#777", fontSize: 14, textAlign: "center" }}>
                       No images yet
                     </p>
                   )}
@@ -148,7 +169,12 @@ export default function App() {
                       src={src}
                       alt={`Image ${i}`}
                       className="scroll-image-vertical"
-                      onClick={() => setPreviewImage(src)}
+                      onClick={() => {
+                        setPreviewImage(src);
+                        setZoom(1);
+                        setRotation(0);
+                        setDragOffset({ x: 0, y: 0 });
+                      }}
                       style={{
                         width: "100%",
                         height: 120,
@@ -159,9 +185,8 @@ export default function App() {
                       }}
                     />
                   ))}
-                  {/* Resizer handle */}
                   <div
-                    onMouseDown={startDragging}
+                    onMouseDown={startSidebarDrag}
                     style={{
                       width: 6,
                       cursor: "ew-resize",
@@ -260,39 +285,15 @@ export default function App() {
                       }
                     }}
                   >
-                    <div
-                      className={`toggle-thumb ${
-                        darkModeEnabled ? "active" : ""
-                      }`}
-                    />
+                    <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
                   </div>
                 </label>
-                <button
-                  onClick={() =>
-                    alert(
-                      `Mode is now ${
-                        darkModeEnabled ? "Dark Mode" : "White Mode"
-                      }`
-                    )
-                  }
-                  style={{
-                    padding: "8px 16px",
-                    borderRadius: "6px",
-                    border: "none",
-                    backgroundColor: "#FF5722",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  Save Settings
-                </button>
               </div>
             )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Image Preview Modal */}
       <AnimatePresence>
         {previewImage && (
           <motion.div
@@ -301,35 +302,70 @@ export default function App() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            onClick={() => setPreviewImage(null)}
             style={{
               position: "fixed",
               inset: 0,
               backgroundColor: "rgba(0,0,0,0.3)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
               zIndex: 9999,
-              cursor: "pointer",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
             }}
+            onClick={() => setPreviewImage(null)}
           >
-            <motion.img
-              src={previewImage}
-              alt="Preview"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              onClick={(e) => e.stopPropagation()}
+            <div
+              ref={modalRef}
               style={{
-                maxWidth: "90vw",
-                maxHeight: "90vh",
-                borderRadius: 12,
-                boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
+                position: "absolute",
+                top: `calc(50% + ${dragOffset.y}px)`,
+                left: `calc(50% + ${dragOffset.x}px)`,
+                transform: "translate(-50%, -50%)",
+                zIndex: 10000,
+                cursor: dragStart ? "grabbing" : "grab",
               }}
-            />
+              onMouseDown={startModalDrag}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: -40,
+                  right: -40,
+                  display: "flex",
+                  gap: 10,
+                }}
+              >
+                <button onClick={() => setZoom((z) => z + 0.1)}><ZoomIn color="white" /></button>
+                <button onClick={() => setZoom((z) => Math.max(0.1, z - 0.1))}><ZoomOut color="white" /></button>
+                <button onClick={() => setRotation((r) => r + 90)}><RotateCw color="white" /></button>
+                <button onClick={() => { setZoom(1); setRotation(0); }}><RefreshCw color="white" /></button>
+                <button onClick={() => setPreviewImage(null)}><X color="white" /></button>
+              </div>
+
+              <motion.img
+                src={previewImage}
+                alt="Preview"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                onDoubleClick={() => {
+                  setZoom(1);
+                  setRotation(0);
+                }}
+                style={{
+                  maxWidth: "80vw",
+                  maxHeight: "80vh",
+                  transform: `scale(${zoom}) rotate(${rotation}deg)`,
+                  borderRadius: 12,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
+                  userSelect: "none",
+                  pointerEvents: "none",
+                }}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
