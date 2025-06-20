@@ -198,3 +198,38 @@ body.dark-mode .toggle-button:hover {
 .toggle-thumb.active {
   transform: translateX(24px);
 }
+
+/* Scrollable images container */
+
+.scroll-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+}
+
+.scroll-image {
+  flex-shrink: 0;
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.scroll-image:hover {
+  transform: scale(1.05);
+}
