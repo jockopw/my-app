@@ -20,14 +20,15 @@ export default function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
+      {/* Renamed toggle button */}
       <button
         className="toggle-button"
         onClick={() => setTabsVisible((prev) => !prev)}
       >
-        {tabsVisible ? "Hide Tabs" : "Show Tabs"}
+        {tabsVisible ? "Hide General Settings" : "Show General Settings"}
       </button>
 
-      {/* Tabs section with fade in/out */}
+      {/* Tabs */}
       <AnimatePresence>
         {tabsVisible && (
           <motion.div
@@ -54,7 +55,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Tab content with fade in/out */}
+      {/* Tab content */}
       <AnimatePresence mode="wait">
         {tabsVisible && (
           <motion.div
