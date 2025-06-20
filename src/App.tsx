@@ -13,12 +13,11 @@ export default function App() {
     { name: "settings", icon: <Settings size={24} />, label: "Settings" },
   ];
 
-  // Example form state for Profile tab
+  // Profile form state
   const [name, setName] = useState("John Doe");
   const [email, setEmail] = useState("john@example.com");
 
-  // Example settings toggles
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  // Settings toggle state
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
   return (
@@ -27,6 +26,7 @@ export default function App() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
+      data-theme={darkModeEnabled ? "dark" : "light"} // optional attribute for styling
     >
       <button
         className="toggle-button"
@@ -71,7 +71,7 @@ export default function App() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            {/* Home Tab: Show a welcome and a simple action */}
+            {/* Home Tab */}
             {activeTab === "home" && (
               <div>
                 <h2>Welcome Home!</h2>
@@ -92,7 +92,7 @@ export default function App() {
               </div>
             )}
 
-            {/* Profile Tab: Editable form */}
+            {/* Profile Tab */}
             {activeTab === "profile" && (
               <form
                 onSubmit={(e) => {
@@ -139,39 +139,40 @@ export default function App() {
               </form>
             )}
 
-            {/* Settings Tab: Toggles */}
+            {/* Settings Tab */}
             {activeTab === "settings" && (
               <div>
                 <h2>Settings</h2>
 
-                <label style={{ display: "block", marginBottom: 10 }}>
-                  <input
-                    type="checkbox"
-                    checked={notificationsEnabled}
-                    onChange={() =>
-                      setNotificationsEnabled((enabled) => !enabled)
-                    }
-                    style={{ marginRight: 8 }}
-                  />
-                  Enable Notifications
-                </label>
-
-                <label style={{ display: "block", marginBottom: 10 }}>
-                  <input
-                    type="checkbox"
-                    checked={darkModeEnabled}
-                    onChange={() => setDarkModeEnabled((enabled) => !enabled)}
-                    style={{ marginRight: 8 }}
-                  />
-                  Enable Dark Mode
+                <label style={{ display: "block", marginBottom: 20 }}>
+                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>
+                    Dark Mode
+                  </span>
+                  <div
+                    className="toggle-switch"
+                    onClick={() => setDarkModeEnabled((d) => !d)}
+                    role="switch"
+                    aria-checked={darkModeEnabled}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setDarkModeEnabled((d) => !d);
+                      }
+                    }}
+                  >
+                    <div
+                      className={`toggle-thumb ${
+                        darkModeEnabled ? "active" : ""
+                      }`}
+                    />
+                  </div>
                 </label>
 
                 <button
                   onClick={() =>
                     alert(
-                      `Settings saved:\nNotifications: ${
-                        notificationsEnabled ? "On" : "Off"
-                      }\nDark Mode: ${darkModeEnabled ? "On" : "Off"}`
+                      `Dark Mode is now ${darkModeEnabled ? "Enabled" : "Disabled"}`
                     )
                   }
                   style={{
