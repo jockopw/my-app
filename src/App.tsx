@@ -2,19 +2,36 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
-export default function App() {
-  const [tabs, setTabs] = useState([
-    { id: "home", label: "Home" },
-    { id: "profile", label: "Profile" },
-    { id: "settings", label: "Settings" },
-  ]);
-  const [activeTab, setActiveTab] = useState("home");
+type Tab = {
+  id: string;
+  title: string;
+  content: string;
+};
 
-  function addTab() {
-    const newId = `tab${tabs.length + 1}`;
-    setTabs([...tabs, { id: newId, label: "New Tab" }]);
-    setActiveTab(newId);
-  }
+export default function App() {
+  const [tabs, setTabs] = useState<Tab[]>([
+    { id: "home", title: "Home", content: "Welcome to the Home tab!" },
+    { id: "profile", title: "Profile", content: "This is your Profile tab." },
+    { id: "settings", title: "Settings", content: "Adjust your Settings here." },
+  ]);
+  const [activeTabId, setActiveTabId] = useState("home");
+
+  // Add new tab
+  const addTab = () => {
+    const newId = `tab-${Date.now()}`;
+    const newTab = { id: newId, title: "New Tab", content: "New tab content." };
+    setTabs([...tabs, newTab]);
+    setActiveTabId(newId);
+  };
+
+  // Rename tab handler
+  const renameTab = (id: string, newTitle: string) => {
+    setTabs(
+      tabs.map((tab) =>
+        tab.id === id ? { ...tab, title: newTitle } : tab
+      )
+    );
+  };
 
   return (
     <div className="container">
@@ -24,39 +41,37 @@ export default function App() {
             key={tab.id}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className={activeTab === tab.id ? "tab active" : "tab"}
-            onClick={() => setActiveTab(tab.id)}
+            className={activeTabId === tab.id ? "tab active" : "tab"}
+            onClick={() => setActiveTabId(tab.id)}
           >
-            {tab.label}
+            <input
+              value={tab.title}
+              onClick={(e) => e.stopPropagation()} // prevent switching tab when renaming
+              onChange={(e) => renameTab(tab.id, e.target.value)}
+              className="tab-input"
+            />
           </motion.button>
         ))}
-        <motion.button
-          className="tab add"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={addTab}
-        >
+        <button className="tab add" onClick={addTab}>
           + Add Tab
-        </motion.button>
+        </button>
       </div>
 
       <AnimatePresence exitBeforeEnter>
-        {tabs.map(
-          (tab) =>
-            activeTab === tab.id && (
-              <motion.div
-                key={tab.id}
-                className="tab-content"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-              >
-                <h2>{tab.label}</h2>
-                <p>This is the content for the "{tab.label}" tab.</p>
-              </motion.div>
-            )
-        )}
+        {tabs
+          .filter((tab) => tab.id === activeTabId)
+          .map((tab) => (
+            <motion.div
+              key={tab.id}
+              className="tab-content"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              {tab.content}
+            </motion.div>
+          ))}
       </AnimatePresence>
     </div>
   );
