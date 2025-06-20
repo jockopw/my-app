@@ -5,6 +5,7 @@ import "./styles.css";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
+  const [tabsVisible, setTabsVisible] = useState(true); // 👈 new state
 
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
@@ -19,26 +20,37 @@ export default function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <motion.div
-        className="tabs"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+      {/* 👇 Toggle button */}
+      <button
+        className="toggle-button"
+        onClick={() => setTabsVisible((prev) => !prev)}
       >
-        {tabs.map((tab) => (
-          <div key={tab.name} className="tooltip-wrapper">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              className={activeTab === tab.name ? "tab active" : "tab"}
-              onClick={() => setActiveTab(tab.name)}
-            >
-              {tab.icon}
-            </motion.button>
-            <span className="tooltip-text">{tab.label}</span>
-          </div>
-        ))}
-      </motion.div>
+        {tabsVisible ? "Hide Tabs" : "Show Tabs"}
+      </button>
+
+      {/* 👇 Tabs only show if visible */}
+      {tabsVisible && (
+        <motion.div
+          className="tabs"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          {tabs.map((tab) => (
+            <div key={tab.name} className="tooltip-wrapper">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className={activeTab === tab.name ? "tab active" : "tab"}
+                onClick={() => setActiveTab(tab.name)}
+              >
+                {tab.icon}
+              </motion.button>
+              <span className="tooltip-text">{tab.label}</span>
+            </div>
+          ))}
+        </motion.div>
+      )}
 
       <AnimatePresence mode="wait">
         <motion.div
