@@ -14,6 +14,14 @@ export default function App() {
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(180);
 
+  const [name, setName] = useState("John Doe");
+  const [email, setEmail] = useState("john@example.com");
+  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+
+  // New for Profile Pic selection
+  const [showPfpSelector, setShowPfpSelector] = useState(false);
+  const [selectedPfp, setSelectedPfp] = useState<string | null>(null);
+
   const isDraggingSidebar = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -24,17 +32,16 @@ export default function App() {
     { name: "settings", icon: <Settings size={24} />, label: "Settings" },
   ];
 
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("john@example.com");
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-
-  // New image pool including original + 3 new images
+  // Image pool for Get Image button & Profile pics
   const imagePool = [
     "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
     "https://static.robloxden.com/xsmall_black_man_laughing_at_dark_daaedd189d.png",
     "https://static.robloxden.com/xsmall_funny_dog_face_7fd50d454f.png",
     "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png"
   ];
+
+  // Profile pics for selector (reuse same pool here)
+  const profilePics = imagePool;
 
   useEffect(() => {
     if (darkModeEnabled) {
@@ -44,14 +51,12 @@ export default function App() {
     }
   }, [darkModeEnabled]);
 
-  // Randomly add an image from the pool
   const addImage = () => {
     const randomIndex = Math.floor(Math.random() * imagePool.length);
     const randomImage = imagePool[randomIndex];
     setImages((imgs) => [...imgs, randomImage]);
   };
 
-  // Sidebar resize logic
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDraggingSidebar.current) return;
@@ -70,7 +75,6 @@ export default function App() {
 
   const startSidebarDrag = () => (isDraggingSidebar.current = true);
 
-  // Modal drag logic
   const startModalDrag = (e: React.MouseEvent) => {
     setDragStart({ x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y });
   };
@@ -231,49 +235,78 @@ export default function App() {
             )}
 
             {activeTab === "profile" && (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert(`Profile saved for ${name} (${email})`);
-                }}
-                style={{ width: "100%" }}
-              >
-                <h2>Your Profile</h2>
-                <label>
-                  Name:
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    style={{ marginLeft: 8, padding: 4, borderRadius: 4 }}
-                  />
-                </label>
-                <br />
-                <label>
-                  Email:
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    style={{ marginLeft: 8, padding: 4, borderRadius: 4 }}
-                  />
-                </label>
-                <br />
-                <button
-                  type="submit"
-                  style={{
-                    marginTop: 12,
-                    padding: "8px 16px",
-                    borderRadius: "6px",
-                    border: "none",
-                    backgroundColor: "#007BFF",
-                    color: "white",
-                    cursor: "pointer",
+              <div style={{ width: "100%" }}>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    alert("Select Your Profile Pic");
+                    setShowPfpSelector(true);
                   }}
+                  style={{ width: "100%" }}
                 >
-                  Save Profile
-                </button>
-              </form>
+                  <h2>Your Profile</h2>
+                  <label>
+                    Name:
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      style={{ marginLeft: 8, padding: 4, borderRadius: 4 }}
+                    />
+                  </label>
+                  <br />
+                  <label>
+                    Email:
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      style={{ marginLeft: 8, padding: 4, borderRadius: 4 }}
+                    />
+                  </label>
+                  <br />
+                  <button
+                    type="submit"
+                    style={{
+                      marginTop: 12,
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      border: "none",
+                      backgroundColor: "#007BFF",
+                      color: "white",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Save Profile
+                  </button>
+                </form>
+
+                {showPfpSelector && (
+                  <div style={{ marginTop: 20 }}>
+                    <h3>Select your profile picture:</h3>
+                    <div style={{ display: "flex", gap: 12 }}>
+                      {profilePics.map((src) => (
+                        <img
+                          key={src}
+                          src={src}
+                          alt="Profile Pic"
+                          onClick={() => setSelectedPfp(src)}
+                          style={{
+                            width: 80,
+                            height: 80,
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                            cursor: "pointer",
+                            border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
+                            boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
+                            transition: "border 0.3s ease, box-shadow 0.3s ease",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
 
             {activeTab === "settings" && (
@@ -339,7 +372,7 @@ export default function App() {
               onMouseDown={startModalDrag}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* All buttons removed */}
+              {/* Buttons removed as per previous instructions */}
 
               <motion.img
                 src={previewImage}
