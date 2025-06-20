@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Home, User, Settings, X, ZoomIn, ZoomOut, RefreshCw, RotateCw } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  Home,
+  User,
+  Settings,
+  X,
+  ZoomIn,
+  ZoomOut,
+  RefreshCw,
+  RotateCw,
+} from "lucide-react";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import "./styles.css";
 
 export default function App() {
@@ -11,8 +20,12 @@ export default function App() {
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
+    null
+  );
   const [sidebarWidth, setSidebarWidth] = useState(180);
+
+  const controls = useAnimation();
 
   const isDraggingSidebar = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -36,8 +49,21 @@ export default function App() {
     }
   }, [darkModeEnabled]);
 
+  useEffect(() => {
+    controls.start({
+      scale: zoom,
+      rotate: rotation,
+      x: dragOffset.x,
+      y: dragOffset.y,
+      transition: { type: "spring", stiffness: 300, damping: 30 },
+    });
+  }, [zoom, rotation, dragOffset, controls]);
+
   const addImage = () => {
-    setImages((imgs) => [...imgs, "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png"]);
+    setImages((imgs) => [
+      ...imgs,
+      "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
+    ]);
   };
 
   // Sidebar resize logic
@@ -319,11 +345,12 @@ export default function App() {
               ref={modalRef}
               style={{
                 position: "absolute",
-                top: `calc(50% + ${dragOffset.y}px)`,
-                left: `calc(50% + ${dragOffset.x}px)`,
+                top: "50%",
+                left: "50%",
                 transform: "translate(-50%, -50%)",
                 zIndex: 10000,
                 cursor: dragStart ? "grabbing" : "grab",
+                userSelect: "none",
               }}
               onMouseDown={startModalDrag}
               onClick={(e) => e.stopPropagation()}
@@ -331,38 +358,82 @@ export default function App() {
               <div
                 style={{
                   position: "absolute",
-                  top: -40,
-                  right: -40,
+                  top: -50,
+                  right: -50,
                   display: "flex",
                   gap: 10,
                 }}
               >
-                <button onClick={() => setZoom((z) => z + 0.1)}><ZoomIn color="white" /></button>
-                <button onClick={() => setZoom((z) => Math.max(0.1, z - 0.1))}><ZoomOut color="white" /></button>
-                <button onClick={() => setRotation((r) => r + 90)}><RotateCw color="white" /></button>
-                <button onClick={() => { setZoom(1); setRotation(0); }}><RefreshCw color="white" /></button>
-                <button onClick={() => setPreviewImage(null)}><X color="white" /></button>
+                <button
+                  onClick={() => setZoom((z) => Math.min(z + 0.2, 5))}
+                  className="circle-button"
+                  aria-label="Zoom In"
+                >
+                  <ZoomIn />
+                </button>
+                <button
+                  onClick={() => setZoom((z) => Math.max(z - 0.2, 0.1))}
+                  className="circle-button"
+                  aria-label="Zoom Out"
+                >
+                  <ZoomOut />
+                </button>
+                <button
+                  onClick={() => setRotation((r) => r + 90)}
+                  className="circle-button"
+                  aria-label="Rotate"
+                >
+                  <RotateCw />
+                </button>
+                <button
+                  onClick={() => {
+                    setZoom(1);
+                    setRotation(0);
+                    setDragOffset({ x: 0, y: 0 });
+                  }}
+                  className="circle-button"
+                  aria-label="Reset"
+                >
+                  <RefreshCw />
+                </button>
+                <button
+                  onClick={() => setPreviewImage(null)}
+                  className="circle-button"
+                  aria-label="Close"
+                >
+                  <X />
+                </button>
               </div>
 
               <motion.img
                 src={previewImage}
                 alt="Preview"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ duration: 0.3 }}
+                drag
+                dragMomentum={false}
+                dragElastic={0.2}
+                dragConstraints={{ top: -1000, bottom: 1000, left: -1000, right: 1000 }}
                 onDoubleClick={() => {
                   setZoom(1);
                   setRotation(0);
+                  setDragOffset({ x: 0, y: 0 });
+                }}
+                animate={controls}
+                initial={{ scale: 0.8, opacity: 0 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                onDragEnd={(e, info) => {
+                  setDragOffset((offset) => ({
+                    x: offset.x + info.point.x,
+                    y: offset.y + info.point.y,
+                  }));
                 }}
                 style={{
                   maxWidth: "80vw",
                   maxHeight: "80vh",
-                  transform: `scale(${zoom}) rotate(${rotation}deg)`,
                   borderRadius: 12,
                   boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
                   userSelect: "none",
-                  pointerEvents: "none",
+                  cursor: dragStart ? "grabbing" : "grab",
                 }}
               />
             </div>
