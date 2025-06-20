@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Home, User, Settings, X, ZoomIn, ZoomOut, RefreshCw, RotateCw } from "lucide-react";
+import { Home, User, Settings, RotateCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
@@ -337,11 +337,7 @@ export default function App() {
                   gap: 10,
                 }}
               >
-                <button onClick={() => setZoom((z) => z + 0.1)}><ZoomIn color="white" /></button>
-                <button onClick={() => setZoom((z) => Math.max(0.1, z - 0.1))}><ZoomOut color="white" /></button>
                 <button onClick={() => setRotation((r) => r + 90)}><RotateCw color="white" /></button>
-                <button onClick={() => { setZoom(1); setRotation(0); }}><RefreshCw color="white" /></button>
-                <button onClick={() => setPreviewImage(null)}><X color="white" /></button>
               </div>
 
               <motion.img
