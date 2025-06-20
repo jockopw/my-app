@@ -6,6 +6,7 @@ import "./styles.css";
 export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const [tabsVisible, setTabsVisible] = useState(true);
+  const [images, setImages] = useState<string[]>([]);
 
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
@@ -25,6 +26,12 @@ export default function App() {
       document.body.classList.remove("dark-mode");
     }
   }, [darkModeEnabled]);
+
+  const addImage = () => {
+    const randomId = Math.floor(Math.random() * 1000);
+    const url = `https://source.unsplash.com/collection/190727/200x150?sig=${randomId}`;
+    setImages((imgs) => [...imgs, url]);
+  };
 
   return (
     <motion.div
@@ -89,10 +96,23 @@ export default function App() {
                     color: "white",
                     cursor: "pointer",
                   }}
-                  onClick={() => alert("You clicked the Start button!")}
+                  onClick={addImage}
                 >
                   Start Something
                 </button>
+
+                {images.length > 0 && (
+                  <div className="scroll-container" style={{ marginTop: 20 }}>
+                    {images.map((src, i) => (
+                      <img
+                        key={i}
+                        src={src}
+                        alt={`Random ${i}`}
+                        className="scroll-image"
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -174,7 +194,9 @@ export default function App() {
                 <button
                   onClick={() =>
                     alert(
-                      `Mode is now ${darkModeEnabled ? "Dark Mode" : "White Mode"}`
+                      `Mode is now ${
+                        darkModeEnabled ? "Dark Mode" : "White Mode"
+                      }`
                     )
                   }
                   style={{
