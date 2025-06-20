@@ -4,12 +4,19 @@ body {
   font-family: sans-serif;
   margin: 0;
   padding: 20px;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+body.dark-mode {
+  background-color: white;
+  color: black;
 }
 
 .container {
   max-width: 600px;
   margin: 20px;
   text-align: left;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .tabs {
@@ -19,6 +26,7 @@ body {
   justify-content: flex-start;
   flex-wrap: nowrap;
   align-items: flex-start;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .tooltip-wrapper {
@@ -39,10 +47,16 @@ body {
   justify-content: center;
   color: white;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
   user-select: none;
   padding: 0;
   box-sizing: border-box;
+}
+
+body.dark-mode .tab {
+  background-color: #ddd;
+  border: 1px solid #aaa;
+  color: black;
 }
 
 .tab.active {
@@ -51,16 +65,26 @@ body {
   font-weight: bold;
 }
 
+body.dark-mode .tab.active {
+  background-color: #bbb;
+  border-color: #888;
+}
+
 .tab-content {
   font-size: 1.2rem;
   margin-top: 20px;
   padding: 0;
   border-radius: 0;
   animation: fadeIn 0.4s ease-in-out;
+  transition: color 0.5s ease;
 }
 
 .tab:hover {
   background-color: #333;
+}
+
+body.dark-mode .tab:hover {
+  background-color: #ccc;
 }
 
 @keyframes fadeIn {
@@ -84,6 +108,13 @@ body {
   width: 100px;
   text-align: center;
   outline: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode .tab-edit-input {
+  background-color: #eee;
+  color: #111;
+  border: 1px solid #ccc;
 }
 
 .tooltip-text {
@@ -118,11 +149,20 @@ body {
   font-size: 0.9rem;
   cursor: pointer;
   margin-bottom: 12px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .toggle-button:hover {
   background-color: #666;
+}
+
+body.dark-mode .toggle-button {
+  background-color: #aaa;
+  color: black;
+}
+
+body.dark-mode .toggle-button:hover {
+  background-color: #999;
 }
 
 /* Toggle switch styles */
@@ -157,9 +197,4 @@ body {
 
 .toggle-thumb.active {
   transform: translateX(24px);
-}
-
-/* Optional: different background color when active */
-.toggle-switch.active {
-  background-color: #4caf50;
 }
