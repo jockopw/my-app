@@ -13,6 +13,14 @@ export default function App() {
     { name: "settings", icon: <Settings size={24} />, label: "Settings" },
   ];
 
+  // Example form state for Profile tab
+  const [name, setName] = useState("John Doe");
+  const [email, setEmail] = useState("john@example.com");
+
+  // Example settings toggles
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+
   return (
     <motion.div
       className="container"
@@ -20,7 +28,6 @@ export default function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Renamed toggle button */}
       <button
         className="toggle-button"
         onClick={() => setTabsVisible((prev) => !prev)}
@@ -28,7 +35,6 @@ export default function App() {
         {tabsVisible ? "Hide General Settings" : "Show General Settings"}
       </button>
 
-      {/* Tabs */}
       <AnimatePresence>
         {tabsVisible && (
           <motion.div
@@ -55,7 +61,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Tab content */}
       <AnimatePresence mode="wait">
         {tabsVisible && (
           <motion.div
@@ -66,9 +71,122 @@ export default function App() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            {activeTab === "home" && <p>Welcome to the Home tab!</p>}
-            {activeTab === "profile" && <p>This is your Profile tab.</p>}
-            {activeTab === "settings" && <p>Adjust your Settings here.</p>}
+            {/* Home Tab: Show a welcome and a simple action */}
+            {activeTab === "home" && (
+              <div>
+                <h2>Welcome Home!</h2>
+                <p>This is your dashboard where you can start your day.</p>
+                <button
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: "6px",
+                    border: "none",
+                    backgroundColor: "#4CAF50",
+                    color: "white",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => alert("You clicked the Start button!")}
+                >
+                  Start Something
+                </button>
+              </div>
+            )}
+
+            {/* Profile Tab: Editable form */}
+            {activeTab === "profile" && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert(`Profile saved for ${name} (${email})`);
+                }}
+              >
+                <h2>Your Profile</h2>
+
+                <label>
+                  Name:
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    style={{ marginLeft: 8, padding: 4, borderRadius: 4 }}
+                  />
+                </label>
+                <br />
+                <label>
+                  Email:
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={{ marginLeft: 8, padding: 4, borderRadius: 4 }}
+                  />
+                </label>
+                <br />
+                <button
+                  type="submit"
+                  style={{
+                    marginTop: 12,
+                    padding: "8px 16px",
+                    borderRadius: "6px",
+                    border: "none",
+                    backgroundColor: "#007BFF",
+                    color: "white",
+                    cursor: "pointer",
+                  }}
+                >
+                  Save Profile
+                </button>
+              </form>
+            )}
+
+            {/* Settings Tab: Toggles */}
+            {activeTab === "settings" && (
+              <div>
+                <h2>Settings</h2>
+
+                <label style={{ display: "block", marginBottom: 10 }}>
+                  <input
+                    type="checkbox"
+                    checked={notificationsEnabled}
+                    onChange={() =>
+                      setNotificationsEnabled((enabled) => !enabled)
+                    }
+                    style={{ marginRight: 8 }}
+                  />
+                  Enable Notifications
+                </label>
+
+                <label style={{ display: "block", marginBottom: 10 }}>
+                  <input
+                    type="checkbox"
+                    checked={darkModeEnabled}
+                    onChange={() => setDarkModeEnabled((enabled) => !enabled)}
+                    style={{ marginRight: 8 }}
+                  />
+                  Enable Dark Mode
+                </label>
+
+                <button
+                  onClick={() =>
+                    alert(
+                      `Settings saved:\nNotifications: ${
+                        notificationsEnabled ? "On" : "Off"
+                      }\nDark Mode: ${darkModeEnabled ? "On" : "Off"}`
+                    )
+                  }
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: "6px",
+                    border: "none",
+                    backgroundColor: "#FF5722",
+                    color: "white",
+                    cursor: "pointer",
+                  }}
+                >
+                  Save Settings
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
