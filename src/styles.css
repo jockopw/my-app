@@ -17,38 +17,45 @@ body {
   justify-content: center;
   gap: 10px;
   margin-bottom: 20px;
+  border-bottom: 2px solid #555; /* underline for the tab bar */
 }
 
 .tab {
-  background-color: #333;
+  background-color: transparent; /* make background transparent */
   border: none;
   padding: 10px 20px;
   color: white;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 0;
+  font-weight: normal;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.tab:hover {
+  color: #aaa;
+  transform: scale(1.05);
 }
 
 .tab.active {
-  background-color: #555;
+  color: #fff;
   font-weight: bold;
+}
+
+.tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #0af; /* blue underline for active tab */
+  border-radius: 3px 3px 0 0;
 }
 
 .tab-content {
   font-size: 1.2rem;
   margin-top: 20px;
-}
-
-.tab:hover {
-  background: #333;
-  transform: scale(1.05);
-}
-
-.tab.active {
-  background: #555;
-}
-
-.tab-content {
-  margin-top: 1rem;
   padding: 1rem;
   background: #111;
   border-radius: 4px;
@@ -67,4 +74,12 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Add tab button style (optional) */
+.tab.add {
+  background-color: #222;
+  font-size: 1.2rem;
+  color: white;
+  border-radius: 5px;
 }
