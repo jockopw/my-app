@@ -218,3 +218,44 @@ body.dark-mode .toggle-button:hover {
   cursor: auto;
   user-select: none;
 }
+
+.upload-button {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background-color: black;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.upload-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  background-color: #333;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.7rem;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.upload-icon-wrapper:hover .upload-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
