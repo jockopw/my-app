@@ -262,14 +262,3 @@ body.dark-mode .toggle-button:hover {
 .scroll-container-vertical {
   transition: width 0.2s ease;
 }
-
-.profile-welcome {
-  font-size: 1rem;
-  margin-bottom: 10px;
-  color: #88d;
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-body.dark-mode .profile-welcome {
-  color: #335;
-}
