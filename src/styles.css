@@ -313,3 +313,63 @@ body.dark-mode .toggle-button:hover {
   visibility: visible;
   opacity: 1;
 }
+
+/* ===== Added CSS for profile pic highlight and upload button ===== */
+
+/* Upload button styling */
+.upload-button {
+  background: black;
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.upload-button:hover {
+  border-color: #fff;
+  background-color: #222;
+}
+
+/* Tooltip wrapper for upload button */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  width: max-content;
+  background-color: black;
+  color: white;
+  text-align: center;
+  border-radius: 4px;
+  padding: 4px 8px;
+  position: absolute;
+  z-index: 10;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.tooltip-wrapper:hover .tooltip-text,
+.tooltip-wrapper:focus-within .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Smooth animation for profile pic highlight border & shadow */
+img[style*="border: 3px solid rgb(0, 123, 255)"],
+img[style*="box-shadow: 0 0 8px rgb(0, 123, 255)"] {
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
