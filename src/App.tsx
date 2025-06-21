@@ -21,6 +21,7 @@ export default function App() {
 
   const [showPfpSelector, setShowPfpSelector] = useState(false);
   const [selectedPfp, setSelectedPfp] = useState<string | null>(null);
+  const [customPfps, setCustomPfps] = useState<string[]>([]);
 
   const isDraggingSidebar = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -36,10 +37,10 @@ export default function App() {
     "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
     "https://static.robloxden.com/xsmall_black_man_laughing_at_dark_daaedd189d.png",
     "https://static.robloxden.com/xsmall_funny_dog_face_7fd50d454f.png",
-    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png"
+    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png",
   ];
 
-  const profilePics = imagePool;
+  const profilePics = [...imagePool, ...customPfps];
 
   useEffect(() => {
     document.body.classList.toggle("dark-mode", darkModeEnabled);
@@ -98,18 +99,16 @@ export default function App() {
     };
   }, [dragStart]);
 
-  const handleCustomPicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const dataUrl = ev.target?.result as string;
-        setSelectedPfp(dataUrl);
-        setShowPfpSelector(false);
-        alert("Custom profile picture uploaded!");
-      };
-      reader.readAsDataURL(file);
+  const handleCustomPfpUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const urls: string[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const url = URL.createObjectURL(file);
+      urls.push(url);
     }
+    setCustomPfps((prev) => [...prev, ...urls]);
   };
 
   return (
@@ -120,10 +119,7 @@ export default function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <button
-        className="toggle-button"
-        onClick={() => setTabsVisible((prev) => !prev)}
-      >
+      <button className="toggle-button" onClick={() => setTabsVisible((prev) => !prev)}>
         {tabsVisible ? "Hide General Settings" : "Show General Settings"}
       </button>
 
@@ -179,15 +175,7 @@ export default function App() {
                   }}
                 >
                   {images.length === 0 && (
-                    <p
-                      style={{
-                        color: "#777",
-                        fontSize: 14,
-                        textAlign: "center",
-                      }}
-                    >
-                      No images yet
-                    </p>
+                    <p style={{ color: "#777", fontSize: 14, textAlign: "center" }}>No images yet</p>
                   )}
                   {images.map((src, i) => (
                     <img
@@ -300,11 +288,9 @@ export default function App() {
                       transition={{ duration: 0.4, ease: "easeOut" }}
                       style={{ marginTop: 20 }}
                     >
-                      {/* Welcome message above profile picture selection */}
-                      <p style={{ marginBottom: 12, fontWeight: "600", fontSize: 16 }}>
-                        Welcome, {name}!
+                      <p style={{ marginBottom: 8, fontSize: 14, color: "#555" }}>
+                        Welcome, <strong>{name}</strong>!
                       </p>
-
                       <h3>Select your profile picture:</h3>
                       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                         {profilePics.map((src) => (
@@ -313,22 +299,30 @@ export default function App() {
                             src={src}
                             alt="Profile Pic"
                             onClick={() => setSelectedPfp(src)}
-                            className={`profile-pic ${
-                              selectedPfp === src ? "selected" : ""
-                            }`}
+                            style={{
+                              width: 80,
+                              height: 80,
+                              objectFit: "cover",
+                              borderRadius: "50%",
+                              cursor: "pointer",
+                              border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
+                              boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
+                              transition: "border 0.3s ease, box-shadow 0.3s ease",
+                            }}
                           />
                         ))}
 
-                        {/* Upload Custom Pic Button */}
-                        <label className="upload-button" tabIndex={0} aria-label="Upload Custom pic">
-                          <Plus size={28} />
+                        {/* Upload button */}
+                        <label className="upload-button tooltip-wrapper" tabIndex={0} aria-label="Upload Custom Pic">
+                          <Plus size={36} color="white" />
                           <input
                             type="file"
                             accept="image/*"
+                            multiple={false}
                             style={{ display: "none" }}
-                            onChange={handleCustomPicUpload}
+                            onChange={handleCustomPfpUpload}
                           />
-                          <span className="tooltip-text">Upload Custom pic</span>
+                          <span className="tooltip-text">Upload Custom Pic</span>
                         </label>
                       </div>
                     </motion.div>
@@ -357,11 +351,7 @@ export default function App() {
                       }
                     }}
                   >
-                    <div
-                      className={`toggle-thumb ${
-                        darkModeEnabled ? "active" : ""
-                      }`}
-                    />
+                    <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
                   </div>
                 </label>
               </div>
