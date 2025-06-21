@@ -168,39 +168,31 @@ export default function App() {
 
                 <AnimatePresence>
                   {showPfpSelector && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.4, ease: "easeOut" }}
-                      style={{ marginTop: 20 }}
-                    >
-                      <h3>Select your profile picture:</h3>
-                      <div style={{ display: "flex", gap: 12 }}>
-                        {profilePics.map((src) => (
-                          <img
-                            key={src}
-                            src={src}
-                            alt="Profile Pic"
-                            onClick={() => setSelectedPfp(src)}
-                            style={{
-                              width: 80,
-                              height: 80,
-                              objectFit: "cover",
-                              borderRadius: "50%",
-                              cursor: "pointer",
-                              border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
-                              boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
-                              transition: "border 0.3s ease, box-shadow 0.3s ease",
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
+  <div style={{ marginTop: 20 }}>
+    <div className="profile-welcome">Welcome, <strong>{name}</strong>! 🎉</div>
+    <h3>Select your profile picture:</h3>
+    <div style={{ display: "flex", gap: 12 }}>
+      {profilePics.map((src) => (
+        <img
+          key={src}
+          src={src}
+          alt="Profile Pic"
+          onClick={() => setSelectedPfp(src)}
+          style={{
+            width: 80,
+            height: 80,
+            objectFit: "cover",
+            borderRadius: "50%",
+            cursor: "pointer",
+            border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
+            boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
+            transition: "border 0.3s ease, box-shadow 0.3s ease",
+          }}
+        />
+      ))}
+    </div>
+  </div>
+)}
 
             {activeTab === "settings" && (
               <div style={{ width: "100%" }}>
