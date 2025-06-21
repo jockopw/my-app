@@ -314,15 +314,15 @@ body.dark-mode .toggle-button:hover {
   opacity: 1;
 }
 
-/* ===== Added CSS for profile pic highlight and upload button ===== */
+/* ===== Added CSS for profile pic highlight and smaller upload button ===== */
 
-/* Upload button styling */
+/* Upload button styling (smaller size) */
 .upload-button {
   background: black;
   border: 2px solid white;
   border-radius: 50%;
-  width: 64px;
-  height: 64px;
+  width: 48px;      /* smaller size */
+  height: 48px;     /* smaller size */
   display: flex;
   justify-content: center;
   align-items: center;
