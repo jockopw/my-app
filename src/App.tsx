@@ -178,11 +178,13 @@ export default function App() {
                       <h3>Select your profile picture:</h3>
                       <div style={{ display: "flex", gap: 12 }}>
                         {profilePics.map((src) => (
-                          <img
+                          <motion.img
                             key={src}
                             src={src}
                             alt="Profile Pic"
                             onClick={() => setSelectedPfp(src)}
+                            animate={selectedPfp === src ? { scale: 1.05 } : { scale: 1 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
                             style={{
                               width: 80,
                               height: 80,
@@ -190,8 +192,7 @@ export default function App() {
                               borderRadius: "50%",
                               cursor: "pointer",
                               border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
-                              boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
-                              transition: "border 0.3s ease, box-shadow 0.3s ease",
+                              boxShadow: selectedPfp === src ? "0 0 12px #007BFF" : "none",
                             }}
                           />
                         ))}
