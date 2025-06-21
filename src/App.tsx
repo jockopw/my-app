@@ -22,13 +22,9 @@ export default function App() {
   const [showPfpSelector, setShowPfpSelector] = useState(false);
   const [selectedPfp, setSelectedPfp] = useState<string | null>(null);
 
-  // New state for custom uploaded pics
-  const [customProfilePics, setCustomProfilePics] = useState<string[]>([]);
-
   const isDraggingSidebar = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
@@ -40,11 +36,10 @@ export default function App() {
     "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
     "https://static.robloxden.com/xsmall_black_man_laughing_at_dark_daaedd189d.png",
     "https://static.robloxden.com/xsmall_funny_dog_face_7fd50d454f.png",
-    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png",
+    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png"
   ];
 
-  // Combine default + custom profile pics
-  const profilePics = [...imagePool, ...customProfilePics];
+  const profilePics = imagePool;
 
   useEffect(() => {
     document.body.classList.toggle("dark-mode", darkModeEnabled);
@@ -103,18 +98,19 @@ export default function App() {
     };
   }, [dragStart]);
 
-  // Handle file upload input change
+  // Handle custom profile picture upload
   const handleCustomPfpUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      setCustomProfilePics((pics) => [...pics, result]);
-      setSelectedPfp(result); // Auto-select newly uploaded pic
-    };
-    reader.readAsDataURL(file);
+    const files = e.target.files;
+    if (files && files[0]) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        setSelectedPfp(result);
+        setShowPfpSelector(false);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -305,27 +301,23 @@ export default function App() {
                       transition={{ duration: 0.4, ease: "easeOut" }}
                       style={{ marginTop: 20 }}
                     >
-                      <h3>Select your profile picture:</h3>
-                      <div
+                      <p
                         style={{
-                          display: "flex",
-                          gap: 12,
-                          flexWrap: "wrap",
-                          alignItems: "center",
+                          marginBottom: 6,
+                          fontWeight: "bold",
+                          fontSize: 16,
                         }}
                       >
+                        Welcome, {name}!
+                      </p>
+                      <h3>Select your profile picture:</h3>
+                      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                         {profilePics.map((src) => (
-                          <motion.img
+                          <img
                             key={src}
                             src={src}
                             alt="Profile Pic"
                             onClick={() => setSelectedPfp(src)}
-                            animate={
-                              selectedPfp === src
-                                ? { scale: 1.05 }
-                                : { scale: 1 }
-                            }
-                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
                             style={{
                               width: 80,
                               height: 80,
@@ -337,36 +329,28 @@ export default function App() {
                                   ? "3px solid #007BFF"
                                   : "2px solid #ccc",
                               boxShadow:
-                                selectedPfp === src
-                                  ? "0 0 8px #007BFF"
-                                  : "none",
+                                selectedPfp === src ? "0 0 8px #007BFF" : "none",
                               transition: "border 0.3s ease, box-shadow 0.3s ease",
                             }}
                           />
                         ))}
-
-                        {/* Plus button with tooltip */}
-                        <motion.button
+                        <label
                           className="upload-button tooltip-wrapper"
-                          onClick={() => fileInputRef.current?.click()}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
+                          tabIndex={0}
                           aria-label="Upload Custom Pic"
-                          type="button"
+                          style={{ width: 64, height: 64 }}
                         >
-                          <Plus size={28} strokeWidth={2} />
+                          <Plus size={28} color="white" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple={false}
+                            style={{ display: "none" }}
+                            onChange={handleCustomPfpUpload}
+                          />
                           <span className="tooltip-text">Upload Custom Pic</span>
-                        </motion.button>
+                        </label>
                       </div>
-
-                      {/* Hidden file input */}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={fileInputRef}
-                        style={{ display: "none" }}
-                        onChange={handleCustomPfpUpload}
-                      />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -394,9 +378,7 @@ export default function App() {
                     }}
                   >
                     <div
-                      className={`toggle-thumb ${
-                        darkModeEnabled ? "active" : ""
-                      }`}
+                      className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`}
                     />
                   </div>
                 </label>
