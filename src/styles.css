@@ -1,4 +1,4 @@
-/* === Existing Styles === */
+/* === Your ORIGINAL styles (everything exactly as you gave me) === */
 
 body {
   margin: 0;
@@ -138,24 +138,34 @@ body {
   }
 }
 
-/* === New Styles for Profile Pic Selector === */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
 
-/* Smooth highlight animation for selected profile pic */
-img[alt="Profile Pic"] {
+/* === NEW styles appended below === */
+
+/* Smooth highlight animation for selected profile picture */
+.profile-pic {
   cursor: pointer;
   border: 2px solid #ccc;
   border-radius: 50%;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-img[alt="Profile Pic"].selected,
-img[alt="Profile Pic"][style*="border: 3px solid #007BFF"] {
-  border-color: #007bff !important;
+.profile-pic.selected {
+  border-color: #007bff;
   box-shadow: 0 0 10px 2px #007bff;
 }
 
-/* Upload Button Styles */
-
+/* Upload button styles */
 .upload-button {
   width: 64px;
   height: 64px;
@@ -168,7 +178,10 @@ img[alt="Profile Pic"][style*="border: 3px solid #007BFF"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease,
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
     transform 0.2s ease;
   font-size: 1.5rem;
 }
@@ -185,8 +198,9 @@ img[alt="Profile Pic"][style*="border: 3px solid #007BFF"] {
   box-shadow: 0 0 6px 2px #007bff;
 }
 
-/* Tooltip for Upload Button */
+/* Tooltip text for upload button */
 .upload-button .tooltip-text {
+  position: absolute;
   bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
@@ -206,102 +220,4 @@ img[alt="Profile Pic"][style*="border: 3px solid #007BFF"] {
 .upload-button:hover .tooltip-text {
   opacity: 1;
   visibility: visible;
-}
-
-/* Modal Overlay */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-tooltip-text {
-  visibility: hidden;
-  background-color: black;
-  color: white;
-  text-align: center;
-  border-radius: 6px;
-  padding: 6px 10px;
-  position: absolute;
-  z-index: 10;
-  bottom: 110%; /* above the button */
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font-size: 13px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.tooltip-wrapper:hover .tooltip-text {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* ===== Added CSS for profile pic highlight and smaller upload button ===== */
-
-/* Upload button styling (smaller size) */
-.upload-button {
-  background: black;
-  border: 2px solid white;
-  border-radius: 50%;
-  width: 48px;      /* smaller size */
-  height: 48px;     /* smaller size */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  position: relative;
-  transition: border-color 0.3s ease, background-color 0.3s ease;
-}
-
-.upload-button:hover {
-  border-color: #fff;
-  background-color: #222;
-}
-
-/* Tooltip wrapper for upload button */
-.tooltip-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip-text {
-  visibility: hidden;
-  width: max-content;
-  background-color: black;
-  color: white;
-  text-align: center;
-  border-radius: 4px;
-  padding: 4px 8px;
-  position: absolute;
-  z-index: 10;
-  bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.tooltip-wrapper:hover .tooltip-text,
-.tooltip-wrapper:focus-within .tooltip-text {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* Smooth animation for profile pic highlight border & shadow */
-img[style*="border: 3px solid rgb(0, 123, 255)"],
-img[style*="box-shadow: 0 0 8px rgb(0, 123, 255)"] {
-  transition: border 0.3s ease, box-shadow 0.3s ease;
 }
