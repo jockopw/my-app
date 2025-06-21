@@ -1,6 +1,5 @@
-// App.tsx
 import React, { useState, useEffect, useRef } from "react";
-import { Home, User, Settings } from "lucide-react";
+import { Home, User, Settings, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
@@ -14,11 +13,9 @@ export default function App() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(180);
-
   const [name, setName] = useState("John Doe");
   const [email, setEmail] = useState("john@example.com");
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-
   const [showPfpSelector, setShowPfpSelector] = useState(false);
   const [selectedPfp, setSelectedPfp] = useState<string | null>(null);
 
@@ -35,7 +32,7 @@ export default function App() {
     "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
     "https://static.robloxden.com/xsmall_black_man_laughing_at_dark_daaedd189d.png",
     "https://static.robloxden.com/xsmall_funny_dog_face_7fd50d454f.png",
-    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png"
+    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png",
   ];
 
   const profilePics = imagePool;
@@ -45,10 +42,11 @@ export default function App() {
   }, [darkModeEnabled]);
 
   const addImage = () => {
-    const randomIndex = Math.floor(Math.random() * imagePool.length);
-    const randomImage = imagePool[randomIndex];
+    const randomImage = imagePool[Math.floor(Math.random() * imagePool.length)];
     setImages((imgs) => [...imgs, randomImage]);
   };
+
+  const startSidebarDrag = () => (isDraggingSidebar.current = true);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -65,8 +63,6 @@ export default function App() {
       window.removeEventListener("mouseup", stopDragging);
     };
   }, []);
-
-  const startSidebarDrag = () => (isDraggingSidebar.current = true);
 
   const startModalDrag = (e: React.MouseEvent) => {
     setDragStart({ x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y });
@@ -135,7 +131,6 @@ export default function App() {
                   ))}
                   <div onMouseDown={startSidebarDrag} style={{ width: 6, cursor: "ew-resize", position: "absolute", right: 0, top: 0, bottom: 0, backgroundColor: "#6666" }} />
                 </div>
-
                 <div style={{ flex: 1, paddingLeft: 20 }}>
                   <h2>Welcome Home!</h2>
                   <p>This is your dashboard where you can start your day.</p>
@@ -148,7 +143,7 @@ export default function App() {
 
             {activeTab === "profile" && (
               <div style={{ width: "100%" }}>
-                <form onSubmit={(e) => { e.preventDefault(); alert("Select Your Profile Pic"); setShowPfpSelector(true); }}>
+                <form onSubmit={(e) => { e.preventDefault(); setShowPfpSelector(true); }}>
                   <h2>Your Profile</h2>
                   <label>
                     Name:
@@ -167,67 +162,37 @@ export default function App() {
 
                 <AnimatePresence>
                   {showPfpSelector && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.4, ease: "easeOut" }}
-                      style={{ marginTop: 20 }}
-                    >
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.4, ease: "easeOut" }} style={{ marginTop: 20 }}>
                       <h3>Select your profile picture:</h3>
-                      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                        <motion.label
-                          className="upload-button"
-                          whileHover={{ scale: 1.05 }}
-                          style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-                        >
-                          <input
-                            type="file"
-                            accept="image/*"
-                            style={{ display: "none" }}
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onload = (event) => {
-                                  const newImage = event.target?.result as string;
-                                  if (newImage) {
-                                    setImages((prev) => [...prev, newImage]);
-                                    setSelectedPfp(newImage);
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                          />
+                      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+                        {profilePics.map((src) => (
+                          <img key={src} src={src} alt="Profile Pic" onClick={() => setSelectedPfp(src)} style={{
+                            width: 80, height: 80, objectFit: "cover", borderRadius: "50%", cursor: "pointer",
+                            border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
+                            boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
+                            transition: "border 0.3s ease, box-shadow 0.3s ease",
+                          }} />
+                        ))}
+                        <motion.label className="upload-button" whileHover={{ scale: 1.05 }}>
+                          <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                const newImage = event.target?.result as string;
+                                if (newImage) {
+                                  setImages((prev) => [...prev, newImage]);
+                                  setSelectedPfp(newImage);
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }} />
                           <div className="upload-icon-wrapper">
-                            <div className="upload-tooltip">Upload Custom Pic</div>
-                            <div className="upload-icon">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" stroke="white" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M12 5v14M5 12h14" />
-                              </svg>
-                            </div>
+                            <Plus size={28} />
+                            <span className="upload-tooltip">Upload Custom Pic</span>
                           </div>
                         </motion.label>
-
-                        {profilePics.map((src) => (
-                          <img
-                            key={src}
-                            src={src}
-                            alt="Profile Pic"
-                            onClick={() => setSelectedPfp(src)}
-                            style={{
-                              width: 80,
-                              height: 80,
-                              objectFit: "cover",
-                              borderRadius: "50%",
-                              cursor: "pointer",
-                              border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
-                              boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
-                              transition: "border 0.3s ease, box-shadow 0.3s ease",
-                            }}
-                          />
-                        ))}
                       </div>
                     </motion.div>
                   )}
