@@ -25,6 +25,7 @@ export default function App() {
   const isDraggingSidebar = useRef(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
@@ -36,7 +37,7 @@ export default function App() {
     "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
     "https://static.robloxden.com/xsmall_black_man_laughing_at_dark_daaedd189d.png",
     "https://static.robloxden.com/xsmall_funny_dog_face_7fd50d454f.png",
-    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png"
+    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png",
   ];
 
   const profilePics = imagePool;
@@ -98,16 +99,18 @@ export default function App() {
     };
   }, [dragStart]);
 
-  // Handle custom profile picture upload
-  const handleCustomPfpUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files[0]) {
+    if (files && files.length > 0) {
       const file = files[0];
       const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        setSelectedPfp(result);
-        setShowPfpSelector(false);
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          const result = ev.target.result.toString();
+          setImages((imgs) => [...imgs, result]);
+          setSelectedPfp(result);
+          setShowPfpSelector(true);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -121,10 +124,7 @@ export default function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <button
-        className="toggle-button"
-        onClick={() => setTabsVisible((prev) => !prev)}
-      >
+      <button className="toggle-button" onClick={() => setTabsVisible((prev) => !prev)}>
         {tabsVisible ? "Hide General Settings" : "Show General Settings"}
       </button>
 
@@ -180,15 +180,7 @@ export default function App() {
                   }}
                 >
                   {images.length === 0 && (
-                    <p
-                      style={{
-                        color: "#777",
-                        fontSize: 14,
-                        textAlign: "center",
-                      }}
-                    >
-                      No images yet
-                    </p>
+                    <p style={{ color: "#777", fontSize: 14, textAlign: "center" }}>No images yet</p>
                   )}
                   {images.map((src, i) => (
                     <img
@@ -301,15 +293,11 @@ export default function App() {
                       transition={{ duration: 0.4, ease: "easeOut" }}
                       style={{ marginTop: 20 }}
                     >
-                      <p
-                        style={{
-                          marginBottom: 6,
-                          fontWeight: "bold",
-                          fontSize: 16,
-                        }}
-                      >
+                      {/* Welcome message with saved name */}
+                      <p style={{ marginBottom: 8, fontWeight: "600" }}>
                         Welcome, {name}!
                       </p>
+
                       <h3>Select your profile picture:</h3>
                       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                         {profilePics.map((src) => (
@@ -324,32 +312,34 @@ export default function App() {
                               objectFit: "cover",
                               borderRadius: "50%",
                               cursor: "pointer",
-                              border:
-                                selectedPfp === src
-                                  ? "3px solid #007BFF"
-                                  : "2px solid #ccc",
-                              boxShadow:
-                                selectedPfp === src ? "0 0 8px #007BFF" : "none",
+                              border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
+                              boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
                               transition: "border 0.3s ease, box-shadow 0.3s ease",
                             }}
                           />
                         ))}
-                        <label
+
+                        {/* Upload Custom Pic Button */}
+                        <motion.button
+                          type="button"
                           className="upload-button tooltip-wrapper"
-                          tabIndex={0}
+                          onClick={() => fileInputRef.current?.click()}
                           aria-label="Upload Custom Pic"
-                          style={{ width: 64, height: 64 }}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
                         >
-                          <Plus size={28} color="white" />
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple={false}
-                            style={{ display: "none" }}
-                            onChange={handleCustomPfpUpload}
-                          />
+                          <Plus size={24} />
                           <span className="tooltip-text">Upload Custom Pic</span>
-                        </label>
+                        </motion.button>
+
+                        {/* Hidden file input */}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          ref={fileInputRef}
+                          style={{ display: "none" }}
+                          onChange={handleFileChange}
+                        />
                       </div>
                     </motion.div>
                   )}
@@ -377,9 +367,7 @@ export default function App() {
                       }
                     }}
                   >
-                    <div
-                      className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`}
-                    />
+                    <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
                   </div>
                 </label>
               </div>
