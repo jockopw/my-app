@@ -23,7 +23,6 @@ export default function App() {
   const [selectedPfp, setSelectedPfp] = useState<string | null>(null);
 
   const isDraggingSidebar = useRef(false);
-  const sidebarRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
@@ -176,7 +175,41 @@ export default function App() {
                       style={{ marginTop: 20 }}
                     >
                       <h3>Select your profile picture:</h3>
-                      <div style={{ display: "flex", gap: 12 }}>
+                      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                        <motion.label
+                          className="upload-button"
+                          whileHover={{ scale: 1.05 }}
+                          style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  const newImage = event.target?.result as string;
+                                  if (newImage) {
+                                    setImages((prev) => [...prev, newImage]);
+                                    setSelectedPfp(newImage);
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                          />
+                          <div className="upload-icon-wrapper">
+                            <div className="upload-tooltip">Upload Custom Pic</div>
+                            <div className="upload-icon">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" stroke="white" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 5v14M5 12h14" />
+                              </svg>
+                            </div>
+                          </div>
+                        </motion.label>
+
                         {profilePics.map((src) => (
                           <img
                             key={src}
