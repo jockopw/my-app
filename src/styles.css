@@ -262,3 +262,54 @@ body.dark-mode .toggle-button:hover {
 .scroll-container-vertical {
   transition: width 0.2s ease;
 }
+
+.upload-button {
+  background-color: black;
+  border: 2px solid white;
+  color: white;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+  user-select: none;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.upload-button:hover {
+  border-color: #007BFF;
+  color: #007BFF;
+}
+
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  background-color: black;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 10px;
+  position: absolute;
+  z-index: 10;
+  bottom: 110%; /* above the button */
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 13px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tooltip-wrapper:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
