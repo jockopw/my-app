@@ -220,42 +220,41 @@ body.dark-mode .toggle-button:hover {
 }
 
 .upload-button {
+  border-radius: 50%;
   width: 80px;
   height: 80px;
-  border-radius: 50%;
   border: 2px solid white;
   background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   position: relative;
-  overflow: hidden;
+  transition: transform 0.3s ease;
 }
 
-.upload-icon {
+.upload-button:hover .upload-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.upload-icon-wrapper {
+  position: relative;
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100%;
+  justify-content: center;
 }
 
 .upload-tooltip {
-  visibility: hidden;
-  opacity: 0;
+  position: absolute;
+  bottom: -30px;
   background-color: #333;
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
-  position: absolute;
-  bottom: -30px;
-  left: 50%;
-  transform: translateX(-50%);
+  font-size: 0.75rem;
   white-space: nowrap;
-  font-size: 0.7rem;
+  opacity: 0;
+  visibility: hidden;
   transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.upload-icon-wrapper:hover .upload-tooltip {
-  visibility: visible;
-  opacity: 1;
 }
