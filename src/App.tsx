@@ -1,3 +1,4 @@
+// App.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { Home, User, Settings, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,7 +19,9 @@ export default function App() {
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [showPfpSelector, setShowPfpSelector] = useState(false);
   const [selectedPfp, setSelectedPfp] = useState<string | null>(null);
+  const [uploadedPfps, setUploadedPfps] = useState<string[]>([]);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isDraggingSidebar = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -32,10 +35,10 @@ export default function App() {
     "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
     "https://static.robloxden.com/xsmall_black_man_laughing_at_dark_daaedd189d.png",
     "https://static.robloxden.com/xsmall_funny_dog_face_7fd50d454f.png",
-    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png",
+    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png"
   ];
 
-  const profilePics = imagePool;
+  const profilePics = [...imagePool, ...uploadedPfps];
 
   useEffect(() => {
     document.body.classList.toggle("dark-mode", darkModeEnabled);
@@ -93,6 +96,33 @@ export default function App() {
     };
   }, [dragStart]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const supportedTypes = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/bmp", "image/svg+xml", "application/pdf"];
+    if (!supportedTypes.includes(file.type)) {
+      alert("Only raster image formats and PDFs are supported.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setUploadedPfps((prev) => [...prev, reader.result as string]);
+      }
+    };
+
+    if (file.type === "application/pdf") {
+      // Show a generic PDF icon for PDFs
+      setUploadedPfps((prev) => [...prev, "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg"]);
+    } else {
+      reader.readAsDataURL(file);
+    }
+
+    e.target.value = "";
+  };
+
   return (
     <motion.div className="container" style={{ overflow: "hidden", height: "100vh" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
       <button className="toggle-button" onClick={() => setTabsVisible((prev) => !prev)}>
@@ -143,15 +173,13 @@ export default function App() {
 
             {activeTab === "profile" && (
               <div style={{ width: "100%" }}>
-                <form onSubmit={(e) => { e.preventDefault(); setShowPfpSelector(true); }}>
+                <form onSubmit={(e) => { e.preventDefault(); alert("Select Your Profile Pic"); setShowPfpSelector(true); }}>
                   <h2>Your Profile</h2>
-                  <label>
-                    Name:
+                  <label>Name:
                     <input type="text" value={name} onChange={(e) => setName(e.target.value)} style={{ marginLeft: 8, padding: 4, borderRadius: 4 }} />
                   </label>
                   <br />
-                  <label>
-                    Email:
+                  <label>Email:
                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ marginLeft: 8, padding: 4, borderRadius: 4 }} />
                   </label>
                   <br />
@@ -164,35 +192,37 @@ export default function App() {
                   {showPfpSelector && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.4, ease: "easeOut" }} style={{ marginTop: 20 }}>
                       <h3>Select your profile picture:</h3>
-                      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+                      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                         {profilePics.map((src) => (
                           <img key={src} src={src} alt="Profile Pic" onClick={() => setSelectedPfp(src)} style={{
-                            width: 80, height: 80, objectFit: "cover", borderRadius: "50%", cursor: "pointer",
+                            width: 80,
+                            height: 80,
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                            cursor: "pointer",
                             border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
                             boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
                             transition: "border 0.3s ease, box-shadow 0.3s ease",
                           }} />
                         ))}
-                        <motion.label className="upload-button" whileHover={{ scale: 1.05 }}>
-                          <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onload = (event) => {
-                                const newImage = event.target?.result as string;
-                                if (newImage) {
-                                  setImages((prev) => [...prev, newImage]);
-                                  setSelectedPfp(newImage);
-                                }
-                              };
-                              reader.readAsDataURL(file);
-                            }
-                          }} />
-                          <div className="upload-icon-wrapper">
-                            <Plus size={28} />
-                            <span className="upload-tooltip">Upload Custom Pic</span>
-                          </div>
-                        </motion.label>
+
+                        <div className="tooltip-wrapper">
+                          <button
+                            type="button"
+                            className="upload-icon-btn"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            <Plus size={20} />
+                          </button>
+                          <span className="tooltip-text">Upload Custom Pic</span>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".png,.jpg,.jpeg,.webp,.bmp,.gif,.svg,.pdf"
+                            style={{ display: "none" }}
+                            onChange={handleFileChange}
+                          />
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -204,9 +234,7 @@ export default function App() {
               <div style={{ width: "100%" }}>
                 <h2>Settings</h2>
                 <label style={{ display: "block", marginBottom: 20 }}>
-                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>
-                    White Mode & Dark Mode
-                  </span>
+                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>White Mode & Dark Mode</span>
                   <div className="toggle-switch" onClick={() => setDarkModeEnabled((d) => !d)} role="switch" aria-checked={darkModeEnabled} tabIndex={0} onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
