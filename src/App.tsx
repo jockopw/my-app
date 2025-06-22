@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useState, useEffect, useRef } from "react";
 import { Home, User, Settings, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,31 +13,24 @@ export default function App() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(180);
+
   const [name, setName] = useState("John Doe");
   const [email, setEmail] = useState("john@example.com");
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+
   const [showPfpSelector, setShowPfpSelector] = useState(false);
   const [selectedPfp, setSelectedPfp] = useState<string | null>(null);
-  const [uploadedPfps, setUploadedPfps] = useState<string[]>([]);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const isDraggingSidebar = useRef(false);
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  const tabs = [
-    { name: "home", icon: <Home size={24} />, label: "Home" },
-    { name: "profile", icon: <User size={24} />, label: "Profile" },
-    { name: "settings", icon: <Settings size={24} />, label: "Settings" },
-  ];
-
-  const imagePool = [
+  const [profilePics, setProfilePics] = useState<string[]>([
     "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
     "https://static.robloxden.com/xsmall_black_man_laughing_at_dark_daaedd189d.png",
     "https://static.robloxden.com/xsmall_funny_dog_face_7fd50d454f.png",
     "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png"
-  ];
+  ]);
 
-  const profilePics = [...imagePool, ...uploadedPfps];
+  const isDraggingSidebar = useRef(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  const imagePool = profilePics;
 
   useEffect(() => {
     document.body.classList.toggle("dark-mode", darkModeEnabled);
@@ -49,28 +41,40 @@ export default function App() {
     setImages((imgs) => [...imgs, randomImage]);
   };
 
-  const startSidebarDrag = () => (isDraggingSidebar.current = true);
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"];
+    if (!allowedTypes.includes(file.type)) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      setProfilePics((prev) => [...prev, result]);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const startSidebarDrag = () => (isDraggingSidebar.current = true);
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const move = (e: MouseEvent) => {
       if (!isDraggingSidebar.current) return;
       const newWidth = e.clientX;
       if (newWidth >= 100 && newWidth <= 500) setSidebarWidth(newWidth);
     };
-    const stopDragging = () => (isDraggingSidebar.current = false);
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", stopDragging);
+    const stop = () => (isDraggingSidebar.current = false);
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", stop);
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", stopDragging);
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", stop);
     };
   }, []);
 
   const startModalDrag = (e: React.MouseEvent) => {
     setDragStart({ x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y });
   };
-
   const onModalDrag = (e: MouseEvent) => {
     if (dragStart) {
       setDragOffset({
@@ -79,9 +83,7 @@ export default function App() {
       });
     }
   };
-
   const stopModalDrag = () => setDragStart(null);
-
   useEffect(() => {
     if (dragStart) {
       window.addEventListener("mousemove", onModalDrag);
@@ -96,32 +98,11 @@ export default function App() {
     };
   }, [dragStart]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const supportedTypes = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/bmp", "image/svg+xml", "application/pdf"];
-    if (!supportedTypes.includes(file.type)) {
-      alert("Only raster image formats and PDFs are supported.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setUploadedPfps((prev) => [...prev, reader.result as string]);
-      }
-    };
-
-    if (file.type === "application/pdf") {
-      // Show a generic PDF icon for PDFs
-      setUploadedPfps((prev) => [...prev, "https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg"]);
-    } else {
-      reader.readAsDataURL(file);
-    }
-
-    e.target.value = "";
-  };
+  const tabs = [
+    { name: "home", icon: <Home size={24} />, label: "Home" },
+    { name: "profile", icon: <User size={24} />, label: "Profile" },
+    { name: "settings", icon: <Settings size={24} />, label: "Settings" },
+  ];
 
   return (
     <motion.div className="container" style={{ overflow: "hidden", height: "100vh" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
@@ -161,6 +142,7 @@ export default function App() {
                   ))}
                   <div onMouseDown={startSidebarDrag} style={{ width: 6, cursor: "ew-resize", position: "absolute", right: 0, top: 0, bottom: 0, backgroundColor: "#6666" }} />
                 </div>
+
                 <div style={{ flex: 1, paddingLeft: 20 }}>
                   <h2>Welcome Home!</h2>
                   <p>This is your dashboard where you can start your day.</p>
@@ -175,11 +157,13 @@ export default function App() {
               <div style={{ width: "100%" }}>
                 <form onSubmit={(e) => { e.preventDefault(); alert("Select Your Profile Pic"); setShowPfpSelector(true); }}>
                   <h2>Your Profile</h2>
-                  <label>Name:
+                  <label>
+                    Name:
                     <input type="text" value={name} onChange={(e) => setName(e.target.value)} style={{ marginLeft: 8, padding: 4, borderRadius: 4 }} />
                   </label>
                   <br />
-                  <label>Email:
+                  <label>
+                    Email:
                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ marginLeft: 8, padding: 4, borderRadius: 4 }} />
                   </label>
                   <br />
@@ -190,40 +174,43 @@ export default function App() {
 
                 <AnimatePresence>
                   {showPfpSelector && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.4, ease: "easeOut" }} style={{ marginTop: 20 }}>
-                      <h3>Select your profile picture:</h3>
-                      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 20 }}
+                    >
+                      <div style={{ display: "flex", gap: 12 }}>
                         {profilePics.map((src) => (
-                          <img key={src} src={src} alt="Profile Pic" onClick={() => setSelectedPfp(src)} style={{
-                            width: 80,
-                            height: 80,
-                            objectFit: "cover",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
-                            boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
-                            transition: "border 0.3s ease, box-shadow 0.3s ease",
-                          }} />
-                        ))}
-
-                        <div className="tooltip-wrapper">
-                          <button
-                            type="button"
-                            className="upload-icon-btn"
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            <Plus size={20} />
-                          </button>
-                          <span className="tooltip-text">Upload Custom Pic</span>
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept=".png,.jpg,.jpeg,.webp,.bmp,.gif,.svg,.pdf"
-                            style={{ display: "none" }}
-                            onChange={handleFileChange}
+                          <img
+                            key={src}
+                            src={src}
+                            alt="Profile Pic"
+                            onClick={() => setSelectedPfp(src)}
+                            style={{
+                              width: 80,
+                              height: 80,
+                              objectFit: "cover",
+                              borderRadius: "50%",
+                              cursor: "pointer",
+                              border: selectedPfp === src ? "3px solid #007BFF" : "2px solid #ccc",
+                              boxShadow: selectedPfp === src ? "0 0 8px #007BFF" : "none",
+                              transition: "border 0.3s ease, box-shadow 0.3s ease",
+                            }}
                           />
-                        </div>
+                        ))}
                       </div>
+
+                      <label className="upload-icon-button" title="Upload Custom Pic">
+                        <Plus size={20} />
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          style={{ display: "none" }}
+                          onChange={handleUpload}
+                        />
+                      </label>
                     </motion.div>
                   )}
                 </AnimatePresence>
