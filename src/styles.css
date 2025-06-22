@@ -1,46 +1,38 @@
 body {
   margin: 0;
-  font-family: sans-serif;
-  background-color: #f0f0f0;
-  color: #333;
+  font-family: Arial, sans-serif;
+  background-color: white;
+  color: black;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-.dark-mode {
-  background-color: #111;
-  color: #eee;
+body.dark-mode {
+  background-color: #121212;
+  color: white;
 }
 
 .container {
   padding: 20px;
 }
 
-.toggle-button {
-  background-color: #444;
-  color: white;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-bottom: 12px;
-}
-
 .tabs {
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .tab {
-  background-color: #e0e0e0;
+  background-color: transparent;
   border: none;
-  padding: 12px;
-  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  color: inherit;
+  padding: 10px;
+  border-radius: 50%;
+  transition: background-color 0.3s;
 }
 
 .tab:hover {
-  background-color: #ccc;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .tab.active {
@@ -49,53 +41,38 @@ body {
 }
 
 .tab-content {
-  padding: 12px;
-  border-radius: 8px;
-  flex-grow: 1;
+  padding: 10px;
+  flex: 1;
 }
 
-.fade-in {
-  transition: opacity 0.4s ease;
+.toggle-button {
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  cursor: pointer;
 }
 
 .scroll-container-vertical {
   overflow-y: auto;
-  padding-right: 8px;
 }
 
 .scroll-image-vertical {
-  border-radius: 8px;
-  margin-bottom: 8px;
+  transition: transform 0.3s;
 }
 
-.toggle-switch {
-  width: 50px;
-  height: 26px;
-  background-color: #ccc;
-  border-radius: 13px;
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
-  vertical-align: middle;
-}
-
-.toggle-thumb {
-  width: 22px;
-  height: 22px;
-  background-color: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  transition: left 0.3s ease;
-}
-
-.toggle-thumb.active {
-  left: 26px;
+.scroll-image-vertical:hover {
+  transform: scale(1.05);
 }
 
 .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(6px);
+  WebkitBackdropFilter: blur(6px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -121,7 +98,6 @@ body {
   transform: translateX(-50%);
   opacity: 0;
   transition: opacity 0.3s ease;
-  pointer-events: none;
   white-space: nowrap;
   font-size: 12px;
 }
@@ -131,22 +107,66 @@ body {
   opacity: 1;
 }
 
-/* Upload button styles */
-.upload-icon-btn {
-  width: 40px;
-  height: 40px;
-  background-color: black;
-  color: white;
-  border: 2px solid white;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.toggle-switch {
+  width: 50px;
+  height: 26px;
+  border-radius: 13px;
+  background-color: #ccc;
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.upload-icon-btn:hover {
-  transform: scale(1.1);
+.toggle-thumb {
+  width: 22px;
+  height: 22px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-thumb.active {
+  transform: translateX(24px);
+}
+
+.upload-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid white;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.3s ease, border 0.3s ease;
+}
+
+.upload-btn:hover {
   background-color: #222;
+  border-color: #ccc;
+}
+
+.upload-btn input[type="file"] {
+  display: none;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
