@@ -3,200 +3,53 @@ import { Home, User, Settings, Plus, Gamepad, Music } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
-// Type definitions for drag position
-type DragPosition = { x: number; y: number } | null;
-
-// Utility function to simulate async delay (for demo purposes)
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
-// Helper component for tooltip wrapped button with animation
-const TabButton = ({
-  active,
-  onClick,
-  icon,
-  tooltip,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  tooltip: string;
-}) => (
-  <div className="tooltip-wrapper">
-    <motion.button
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.95 }}
-      className={active ? "tab active" : "tab"}
-      onClick={onClick}
-      aria-label={tooltip}
-      type="button"
-    >
-      {icon}
-    </motion.button>
-    <span className="tooltip-text">{tooltip}</span>
-  </div>
-);
-
-// Main App component
 export default function App() {
-  // ====== State Variables ======
-
-  // Active tab state: home, profile, game, music, settings
-  const [activeTab, setActiveTab] = useState<string>("home");
-
-  // Toggle to show/hide general tabs (home/profile/game/music/settings)
-  const [tabsVisible, setTabsVisible] = useState<boolean>(true);
-
-  // Images state - stores array of image URLs (string)
+  const [activeTab, setActiveTab] = useState("home");
+  const [tabsVisible, setTabsVisible] = useState(true);
   const [images, setImages] = useState<string[]>([]);
-
-  // Preview image modal state and transformations
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [zoom, setZoom] = useState<number>(1);
-  const [rotation, setRotation] = useState<number>(0);
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const [sidebarWidth, setSidebarWidth] = useState(180);
 
-  // Drag related states for modal and sidebar resizing
-  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
-  const [dragStart, setDragStart] = useState<DragPosition>(null);
-  const [sidebarWidth, setSidebarWidth] = useState<number>(180);
-  const isDraggingSidebar = useRef<boolean>(false);
+  const [name, setName] = useState("John Doe");
+  const [email, setEmail] = useState("john@example.com");
+  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
-  // Profile states
-  const [name, setName] = useState<string>("John Doe");
-  const [email, setEmail] = useState<string>("john@example.com");
-  const [darkModeEnabled, setDarkModeEnabled] = useState<boolean>(true); // Default black bg
-
-  // Profile picture selector states
-  const [showPfpSelector, setShowPfpSelector] = useState<boolean>(false);
+  const [showPfpSelector, setShowPfpSelector] = useState(false);
   const [selectedPfp, setSelectedPfp] = useState<string | null>(null);
   const [profilePics, setProfilePics] = useState<string[]>([
     "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
     "https://static.robloxden.com/xsmall_black_man_laughing_at_dark_daaedd189d.png",
     "https://static.robloxden.com/xsmall_funny_dog_face_7fd50d454f.png",
-    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png",
+    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png"
   ]);
 
-  // Modal reference
+  const isDraggingSidebar = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Audio player state for music tab
-  const [audioSrc, setAudioSrc] = useState<string>("");
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [audioFade, setAudioFade] = useState<boolean>(false);
-
-  // =============================
-
-  // Image pool for random image selection in Home tab
   const imagePool = profilePics;
 
-  // ===== Effects =====
+  // Music tab states
+  const [musicUrl, setMusicUrl] = useState("");
+  const [audioSrc, setAudioSrc] = useState<string | null>(null);
 
-  // Apply dark mode class to body
   useEffect(() => {
     document.body.classList.toggle("dark-mode", darkModeEnabled);
   }, [darkModeEnabled]);
 
-  // Sidebar drag handlers
-  useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isDraggingSidebar.current) return;
-      const newWidth = e.clientX;
-      if (newWidth >= 100 && newWidth <= 500) setSidebarWidth(newWidth);
-    };
-    const onMouseUp = () => {
-      isDraggingSidebar.current = false;
-    };
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-    return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-    };
-  }, []);
-
-  // Modal drag handlers
-  const onModalDrag = (e: MouseEvent) => {
-    if (!dragStart) return;
-    setDragOffset({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    });
-  };
-
-  useEffect(() => {
-    if (dragStart) {
-      window.addEventListener("mousemove", onModalDrag);
-      window.addEventListener("mouseup", () => setDragStart(null));
-    } else {
-      window.removeEventListener("mousemove", onModalDrag);
-      window.removeEventListener("mouseup", () => setDragStart(null));
-    }
-    return () => {
-      window.removeEventListener("mousemove", onModalDrag);
-      window.removeEventListener("mouseup", () => setDragStart(null));
-    };
-  }, [dragStart]);
-
-  // Audio play/pause effect with fade in/out animation
-  useEffect(() => {
-    if (!audioRef.current) return;
-    const audio = audioRef.current;
-
-    if (isPlaying) {
-      // Fade in volume
-      let volume = 0;
-      audio.volume = 0;
-      audio.play();
-      setAudioFade(true);
-      const fadeInInterval = setInterval(() => {
-        if (volume < 1) {
-          volume += 0.05;
-          audio.volume = Math.min(volume, 1);
-        } else {
-          clearInterval(fadeInInterval);
-          setAudioFade(false);
-        }
-      }, 50);
-    } else {
-      // Fade out volume and pause
-      let volume = audio.volume;
-      setAudioFade(true);
-      const fadeOutInterval = setInterval(() => {
-        if (volume > 0) {
-          volume -= 0.05;
-          audio.volume = Math.max(volume, 0);
-        } else {
-          clearInterval(fadeOutInterval);
-          audio.pause();
-          setAudioFade(false);
-        }
-      }, 50);
-    }
-  }, [isPlaying]);
-
-  // ===== Event Handlers =====
-
-  // Add random image to Home tab list
   const addImage = () => {
     const randomImage = imagePool[Math.floor(Math.random() * imagePool.length)];
     setImages((imgs) => [...imgs, randomImage]);
   };
 
-  // File upload handler for profile pics
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-      "application/pdf",
-    ];
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"];
     if (!allowedTypes.includes(file.type)) return;
 
     const reader = new FileReader();
@@ -207,84 +60,103 @@ export default function App() {
     reader.readAsDataURL(file);
   };
 
-  // Sidebar drag start handler
   const startSidebarDrag = () => (isDraggingSidebar.current = true);
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      if (!isDraggingSidebar.current) return;
+      const newWidth = e.clientX;
+      if (newWidth >= 100 && newWidth <= 500) setSidebarWidth(newWidth);
+    };
+    const stop = () => (isDraggingSidebar.current = false);
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", stop);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", stop);
+    };
+  }, []);
 
-  // Modal drag start handler
   const startModalDrag = (e: React.MouseEvent) => {
     setDragStart({ x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y });
   };
+  const onModalDrag = (e: MouseEvent) => {
+    if (dragStart) {
+      setDragOffset({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      });
+    }
+  };
+  const stopModalDrag = () => setDragStart(null);
+  useEffect(() => {
+    if (dragStart) {
+      window.addEventListener("mousemove", onModalDrag);
+      window.addEventListener("mouseup", stopModalDrag);
+    } else {
+      window.removeEventListener("mousemove", onModalDrag);
+      window.removeEventListener("mouseup", stopModalDrag);
+    }
+    return () => {
+      window.removeEventListener("mousemove", onModalDrag);
+      window.removeEventListener("mouseup", stopModalDrag);
+    };
+  }, [dragStart]);
 
-  // Music link or file input handler
-  const handleMusicInput = (input: string | File) => {
-    if (typeof input === "string") {
-      // Accept YouTube or Spotify links (basic validation)
-      if (
-        input.includes("youtube.com") ||
-        input.includes("youtu.be") ||
-        input.includes("spotify.com")
-      ) {
-        setAudioSrc(input);
-        setIsPlaying(true);
-      } else {
-        alert("Please enter a valid YouTube or Spotify URL.");
-      }
-    } else if (input instanceof File) {
-      const url = URL.createObjectURL(input);
-      setAudioSrc(url);
-      setIsPlaying(true);
+  // Helpers for music tab embed handling
+  function isYouTubeLink(url: string) {
+    return /youtu(?:\.be|be\.com)/.test(url);
+  }
+  function isSpotifyLink(url: string) {
+    return /spotify\.com/.test(url);
+  }
+  function extractYouTubeID(url: string) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  }
+  function convertSpotifyUrlToEmbed(url: string) {
+    if (!url) return "";
+    // convert normal spotify url to embed url
+    // example: https://open.spotify.com/track/xyz => https://open.spotify.com/embed/track/xyz
+    return url.replace("open.spotify.com/", "open.spotify.com/embed/");
+  }
+
+  const handlePlayLink = () => {
+    if (!musicUrl) return;
+    if (isYouTubeLink(musicUrl) || isSpotifyLink(musicUrl)) {
+      setAudioSrc(null);
+      // embedded player will show automatically
+    } else {
+      // treat as direct audio file link
+      setAudioSrc(musicUrl);
     }
   };
 
-  // Audio file input change handler
-  const onAudioFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    handleMusicInput(file);
+
+    const url = URL.createObjectURL(file);
+    setAudioSrc(url);
+    setMusicUrl("");
   };
 
-  // Music URL paste handler
-  const onMusicUrlPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const pastedData = e.clipboardData.getData("Text");
-    if (pastedData) {
-      handleMusicInput(pastedData);
-    }
-  };
-
-  // Play/pause toggle
-  const togglePlay = () => {
-    setIsPlaying((p) => !p);
-  };
-
-  // =======================
-  // Tabs array with new Music and Game tab included, Game next to Profile, Music next to Settings
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
     { name: "profile", icon: <User size={24} />, label: "Profile" },
-    { name: "game", icon: <Gamepad size={24} />, label: "Game" },
     { name: "music", icon: <Music size={24} />, label: "Music" },
+    { name: "game", icon: <Gamepad size={24} />, label: "Game" },
     { name: "settings", icon: <Settings size={24} />, label: "Settings" },
   ];
 
-  // =======================
-  // Game Tab: Simple clicker game state
-  const [gameCount, setGameCount] = useState<number>(0);
-
-  // Game button click handler
-  const incrementGame = () => {
-    setGameCount((c) => c + 1);
-  };
-
-  // ===== Render =====
   return (
     <motion.div
       className="container"
-      style={{ overflow: "hidden", height: "100vh" }}
+      style={{ overflow: "hidden", height: "100vh", backgroundColor: "#000" }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Toggle to show/hide general tabs */}
       <button
         className="toggle-button"
         onClick={() => setTabsVisible((prev) => !prev)}
@@ -292,7 +164,6 @@ export default function App() {
         {tabsVisible ? "Hide General Settings" : "Show General Settings"}
       </button>
 
-      {/* Tab buttons */}
       <AnimatePresence>
         {tabsVisible && (
           <motion.div
@@ -303,19 +174,35 @@ export default function App() {
             transition={{ duration: 0.3 }}
           >
             {tabs.map((tab) => (
-              <TabButton
-                key={tab.name}
-                active={activeTab === tab.name}
-                onClick={() => setActiveTab(tab.name)}
-                icon={tab.icon}
-                tooltip={tab.label}
-              />
+              <div key={tab.name} className="tooltip-wrapper">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={activeTab === tab.name ? "tab active" : "tab"}
+                  onClick={() => setActiveTab(tab.name)}
+                  style={{
+                    borderRadius: "50%",
+                    backgroundColor:
+                      activeTab === tab.name ? "#007BFF" : "#222",
+                    color: "white",
+                    border: "none",
+                    width: 48,
+                    height: 48,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  {tab.icon}
+                </motion.button>
+                <span className="tooltip-text">{tab.label}</span>
+              </div>
             ))}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Tab content */}
       <AnimatePresence mode="wait">
         {tabsVisible && (
           <motion.div
@@ -327,7 +214,6 @@ export default function App() {
             transition={{ duration: 0.4, ease: "easeOut" }}
             style={{ display: "flex", overflow: "hidden", height: "100%" }}
           >
-            {/* Home Tab */}
             {activeTab === "home" && (
               <>
                 <div
@@ -409,7 +295,6 @@ export default function App() {
               </>
             )}
 
-            {/* Profile Tab */}
             {activeTab === "profile" && (
               <div style={{ width: "100%" }}>
                 <form
@@ -491,7 +376,8 @@ export default function App() {
                                 selectedPfp === src
                                   ? "0 0 8px #007BFF"
                                   : "none",
-                              transition: "border 0.3s ease, box-shadow 0.3s ease",
+                              transition:
+                                "border 0.3s ease, box-shadow 0.3s ease",
                             }}
                           />
                         ))}
@@ -500,18 +386,6 @@ export default function App() {
                       <label
                         className="upload-icon-button"
                         title="Upload Custom Pic"
-                        style={{
-                          cursor: "pointer",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor: "#000",
-                          borderRadius: "50%",
-                          width: 48,
-                          height: 48,
-                          border: "2px solid white",
-                          color: "white",
-                        }}
                       >
                         <Plus size={20} />
                         <input
@@ -527,264 +401,431 @@ export default function App() {
               </div>
             )}
 
-            {/* Game Tab */}
-            {activeTab === "game" && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: 20,
-                }}
-              >
-                <h2>Simple Clicker Game</h2>
-                <p>Clicks: {gameCount}</p>
-                <button
-                  onClick={incrementGame}
-                  style={{
-                    padding: "12px 24px",
-                    borderRadius: "8px",
-                    border: "none",
-                    backgroundColor: "#e91e63",
-                    color: "white",
-                    cursor: "pointer",
-                    fontSize: 18,
-                  }}
-                >
-                  Click Me!
-                </button>
-              </motion.div>
-            )}
-
-            {/* Music Tab */}
             {activeTab === "music" && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                style={{
-                  width: "100%",
-                  padding: 20,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 20,
-                }}
+                key="music-tab"
+                className="tab-content fade-in"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{ width: "100%", padding: 10 }}
               >
                 <h2>Music Player</h2>
+                <p>
+                  Paste a YouTube or Spotify link, or upload an audio file to
+                  play.
+                </p>
 
-                <label htmlFor="music-url">Paste YouTube or Spotify URL:</label>
-                <input
-                  id="music-url"
-                  type="text"
-                  placeholder="https://youtube.com/ or https://spotify.com/..."
-                  onPaste={onMusicUrlPaste}
-                  style={{ padding: 8, borderRadius: 6, border: "1px solid #ccc" }}
-                />
-
-                <label htmlFor="music-file-upload" style={{ marginTop: 10 }}>
-                  Or upload audio file:
-                </label>
-                <input
-                  id="music-file-upload"
-                  type="file"
-                  accept="audio/*"
-                  onChange={onAudioFileChange}
-                />
-
-                {/* Audio Player */}
-                {audioSrc && (
-                  <div
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 12,
+                    alignItems: "center",
+                    marginBottom: 12,
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="Paste link here"
+                    value={musicUrl}
+                    onChange={(e) => setMusicUrl(e.target.value)}
                     style={{
-                      marginTop: 20,
+                      flexGrow: 1,
+                      padding: 8,
+                      borderRadius: 6,
+                      border: "1px solid #ccc",
+                      fontSize: 14,
+                    }}
+                  />
+                  <button
+                    onClick={handlePlayLink}
+                    style={{
+                      borderRadius: "50%",
+                      backgroundColor: activeTab === "music" ? "#007BFF" : "#555",
+                      border: "none",
+                      width: 40,
+                      height: 40,
+                      cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
-                      gap: 10,
+                      justifyContent: "center",
+                      color: "white",
+                      fontWeight: "bold",
+                      userSelect: "none",
+                      boxShadow: "0 0 8px #007BFF",
+                      transition: "background-color 0.3s ease",
                     }}
+                    title="Play"
+                    aria-label="Play Music"
                   >
-                    <audio ref={audioRef} src={audioSrc} controls={false} />
-                    <button
-                      onClick={togglePlay}
-                      style={{
-                        padding: "8px 16px",
-                        borderRadius: 6,
-                        border: "none",
-                        backgroundColor: "#007BFF",
-                        color: "white",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {isPlaying ? "Pause" : "Play"}
-                    </button>
+                    ▶
+                  </button>
+                  <label
+                    htmlFor="music-upload"
+                    title="Upload Audio File"
+                    style={{
+                      borderRadius: "50%",
+                      backgroundColor: "black",
+                      border: "2px solid white",
+                      width: 40,
+                      height: 40,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      color: "white",
+                      fontSize: 20,
+                      userSelect: "none",
+                      transition: "background-color 0.3s ease",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#222")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = "black")
+                    }
+                  >
+                    +
+                    <input
+                      id="music-upload"
+                      type="file"
+                      accept="audio/*"
+                      style={{ display: "none" }}
+                      onChange={handleAudioUpload}
+                    />
+                  </label>
+                </div>
+
+                {audioSrc && (
+                  <motion.audio
+                    key="audio-player"
+                    src={audioSrc}
+                    controls
+                    autoPlay
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    style={{ width: "100%", outline: "none", borderRadius: 8 }}
+                  />
+                )}
+
+                {!audioSrc && musicUrl && (
+                  <div
+                    style={{ marginTop: 20, fontStyle: "italic", color: "#777" }}
+                  >
+                    Preview of embedded players will appear here.
                   </div>
+                )}
+
+                {/* For YouTube embed */}
+                {musicUrl && isYouTubeLink(musicUrl) && (
+                  <motion.div
+                    key="youtube-embed"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    style={{ marginTop: 20, borderRadius: 8, overflow: "hidden" }}
+                  >
+                    <iframe
+                      width="100%"
+                      height="315"
+                      src={`https://www.youtube.com/embed/${extractYouTubeID(
+                        musicUrl
+                      )}`}
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{ borderRadius: 8 }}
+                    />
+                  </motion.div>
+                )}
+
+                {/* For Spotify embed */}
+                {musicUrl && isSpotifyLink(musicUrl) && (
+                  <motion.div
+                    key="spotify-embed"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    style={{ marginTop: 20, borderRadius: 8, overflow: "hidden" }}
+                  >
+                    <iframe
+                      src={convertSpotifyUrlToEmbed(musicUrl)}
+                      width="100%"
+                      height="80"
+                      frameBorder="0"
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      allowFullScreen
+                      style={{ borderRadius: 8 }}
+                      title="Spotify Player"
+                    />
+                  </motion.div>
                 )}
               </motion.div>
             )}
 
-            {/* Settings Tab */}
+            {activeTab === "game" && (
+              <motion.div
+                key="game-tab"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{
+                  width: "100%",
+                  padding: 20,
+                  color: "white",
+                  backgroundColor: "#111",
+                  borderRadius: 10,
+                }}
+              >
+                <h2>Game Tab</h2>
+                <p>This is the game tab content area.</p>
+              </motion.div>
+            )}
+
             {activeTab === "settings" && (
-              <div style={{ width: "100%" }}>
+              <motion.div
+                key="settings-tab"
+                className="tab-content fade-in"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{ width: "100%", padding: 20 }}
+              >
                 <h2>Settings</h2>
-
-                {/* Dark Mode Toggle */}
-                <label
-                  style={{
-                    display: "block",
-                    marginBottom: 20,
-                    cursor: "pointer",
-                    userSelect: "none",
-                  }}
-                >
-                  <span
-                    style={{ marginRight: 12, verticalAlign: "middle" }}
-                    aria-label="Toggle Dark Mode"
-                  >
-                    White Mode & Dark Mode
-                  </span>
-                  <div
-                    className="toggle-switch"
-                    onClick={() => setDarkModeEnabled((d) => !d)}
-                    role="switch"
-                    aria-checked={darkModeEnabled}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setDarkModeEnabled((d) => !d);
-                      }
-                    }}
-                    style={{ display: "inline-block", verticalAlign: "middle" }}
-                  >
-                    <div
-                      className={
-                        "toggle-thumb " + (darkModeEnabled ? "active" : "")
-                      }
-                    />
-                  </div>
-                </label>
-
-                {/* Volume Control */}
-                <label style={{ display: "block", marginBottom: 20 }}>
-                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>
-                    Volume Control
-                  </span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    defaultValue={100}
-                    onChange={(e) => {
-                      if (audioRef.current) {
-                        audioRef.current.volume = Number(e.target.value) / 100;
-                      }
-                    }}
-                    style={{ verticalAlign: "middle" }}
-                    aria-label="Volume control slider"
-                  />
-                </label>
-
-                {/* Reset Profile Info */}
-                <button
-                  onClick={() => {
-                    setName("John Doe");
-                    setEmail("john@example.com");
-                    alert("Profile reset to default");
-                  }}
-                  style={{
-                    padding: "8px 16px",
-                    borderRadius: "6px",
-                    border: "none",
-                    backgroundColor: "#dc3545",
-                    color: "white",
-                    cursor: "pointer",
-                    marginTop: 10,
-                  }}
-                >
-                  Reset Profile Info
-                </button>
-
-                {/* Additional dummy setting */}
-                <div style={{ marginTop: 20 }}>
+                <div style={{ marginBottom: 20 }}>
                   <label>
                     <input
                       type="checkbox"
-                      onChange={(e) =>
-                        alert(
-                          `Extra setting toggled: ${
-                            e.target.checked ? "On" : "Off"
-                          }`
-                        )
-                      }
+                      checked={darkModeEnabled}
+                      onChange={() => setDarkModeEnabled((prev) => !prev)}
                     />{" "}
-                    Enable Extra Feature (demo)
+                    Enable Dark Mode
                   </label>
                 </div>
-              </div>
+
+                <div style={{ marginBottom: 20 }}>
+                  <label>
+                    Sidebar Width:
+                    <input
+                      type="range"
+                      min={100}
+                      max={500}
+                      value={sidebarWidth}
+                      onChange={(e) => setSidebarWidth(Number(e.target.value))}
+                      style={{ width: "100%", marginTop: 5 }}
+                    />
+                  </label>
+                </div>
+
+                <div>
+                  <h3>Profile Picture Options</h3>
+                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                    {profilePics.map((pic) => (
+                      <img
+                        key={pic}
+                        src={pic}
+                        alt="Profile option"
+                        style={{
+                          width: 64,
+                          height: 64,
+                          borderRadius: "50%",
+                          border:
+                            selectedPfp === pic
+                              ? "3px solid #007BFF"
+                              : "2px solid #ccc",
+                          cursor: "pointer",
+                          transition: "border 0.3s ease",
+                        }}
+                        onClick={() => setSelectedPfp(pic)}
+                      />
+                    ))}
+                    <label
+                      htmlFor="settings-upload"
+                      title="Upload Profile Pic"
+                      style={{
+                        borderRadius: "50%",
+                        backgroundColor: "black",
+                        border: "2px solid white",
+                        width: 64,
+                        height: 64,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        color: "white",
+                        fontSize: 24,
+                        userSelect: "none",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      +
+                      <input
+                        id="settings-upload"
+                        type="file"
+                        accept="image/*,application/pdf"
+                        style={{ display: "none" }}
+                        onChange={handleUpload}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </motion.div>
             )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Preview Image Modal */}
-      <AnimatePresence>
-        {previewImage && (
-          <motion.div
-            className="modal-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+      {previewImage && (
+        <motion.div
+          className="modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setPreviewImage(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+            cursor: "pointer",
+          }}
+        >
+          <motion.img
+            ref={modalRef}
+            src={previewImage}
+            alt="Preview"
+            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.3 }}
+            drag
+            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+            dragElastic={0.1}
+            dragMomentum={false}
+            style={{
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+              borderRadius: 12,
+              cursor: dragStart ? "grabbing" : "grab",
+              userSelect: "none",
+              transformOrigin: "center",
+              x: dragOffset.x,
+              y: dragOffset.y,
+              rotate: rotation + "deg",
+              scale: zoom,
+              boxShadow: "0 0 15px rgba(0,0,0,0.8)",
+            }}
+            onMouseDown={startModalDrag}
+          />
+          <div
             style={{
               position: "fixed",
-              inset: 0,
-              backgroundColor: "rgba(0,0,0,0.3)",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
+              bottom: 40,
               display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              zIndex: 9999,
+              gap: 12,
+              backgroundColor: "rgba(0,0,0,0.5)",
+              padding: 10,
+              borderRadius: 12,
             }}
-            onClick={() => setPreviewImage(null)}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div
-              ref={modalRef}
+            <button
+              onClick={() => setZoom((z) => Math.min(z + 0.2, 3))}
               style={{
-                position: "absolute",
-                top: `calc(50% + ${dragOffset.y}px)`,
-                left: `calc(50% + ${dragOffset.x}px)`,
-                transform: "translate(-50%, -50%)",
-                zIndex: 10000,
-                cursor: dragStart ? "grabbing" : "grab",
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                border: "none",
+                backgroundColor: "#222",
+                color: "white",
+                cursor: "pointer",
               }}
-              onMouseDown={startModalDrag}
-              onClick={(e) => e.stopPropagation()}
+              title="Zoom In"
             >
-              <motion.img
-                src={previewImage}
-                alt="Preview"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                style={{
-                  maxWidth: "80vw",
-                  maxHeight: "80vh",
-                  transform: `scale(${zoom}) rotate(${rotation}deg)`,
-                  borderRadius: 12,
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
-                  userSelect: "none",
-                  pointerEvents: "none",
-                }}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              +
+            </button>
+            <button
+              onClick={() => setZoom((z) => Math.max(z - 0.2, 0.4))}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                border: "none",
+                backgroundColor: "#222",
+                color: "white",
+                cursor: "pointer",
+              }}
+              title="Zoom Out"
+            >
+              –
+            </button>
+            <button
+              onClick={() => setRotation((r) => r - 15)}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                border: "none",
+                backgroundColor: "#222",
+                color: "white",
+                cursor: "pointer",
+              }}
+              title="Rotate Left"
+            >
+              ↺
+            </button>
+            <button
+              onClick={() => setRotation((r) => r + 15)}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                border: "none",
+                backgroundColor: "#222",
+                color: "white",
+                cursor: "pointer",
+              }}
+              title="Rotate Right"
+            >
+              ↻
+            </button>
+            <button
+              onClick={() => {
+                setZoom(1);
+                setRotation(0);
+                setDragOffset({ x: 0, y: 0 });
+              }}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: "50%",
+                border: "none",
+                backgroundColor: "#222",
+                color: "white",
+                cursor: "pointer",
+              }}
+              title="Reset"
+            >
+              ↺↻
+            </button>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
