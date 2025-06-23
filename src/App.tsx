@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Home, User, Settings, Plus, Gamepad } from "lucide-react";
+import { Home, User, Settings, Plus, Music } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
 export default function App() {
+  // === States ===
   const [activeTab, setActiveTab] = useState("home");
   const [tabsVisible, setTabsVisible] = useState(true);
   const [images, setImages] = useState<string[]>([]);
@@ -24,39 +25,32 @@ export default function App() {
     "https://static.robloxden.com/xsmall_silly_cat_346a0b5b02.png",
     "https://static.robloxden.com/xsmall_black_man_laughing_at_dark_daaedd189d.png",
     "https://static.robloxden.com/xsmall_funny_dog_face_7fd50d454f.png",
-    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png"
+    "https://static.robloxden.com/xsmall_funnyweird_face_228f4cf5c7.png",
   ]);
+
+  // Music Tab States
+  const [musicUrl, setMusicUrl] = useState("");
+  const [audioSrc, setAudioSrc] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const isDraggingSidebar = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   const imagePool = profilePics;
 
+  // === Effects ===
   useEffect(() => {
     document.body.classList.toggle("dark-mode", darkModeEnabled);
   }, [darkModeEnabled]);
 
-  const addImage = () => {
-    const randomImage = imagePool[Math.floor(Math.random() * imagePool.length)];
-    setImages((imgs) => [...imgs, randomImage]);
-  };
-
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"];
-    if (!allowedTypes.includes(file.type)) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      setProfilePics((prev) => [...prev, result]);
+  useEffect(() => {
+    return () => {
+      if (audioSrc && audioSrc.startsWith("blob:")) {
+        URL.revokeObjectURL(audioSrc);
+      }
     };
-    reader.readAsDataURL(file);
-  };
+  }, [audioSrc]);
 
-  const startSidebarDrag = () => (isDraggingSidebar.current = true);
   useEffect(() => {
     const move = (e: MouseEvent) => {
       if (!isDraggingSidebar.current) return;
@@ -71,6 +65,8 @@ export default function App() {
       window.removeEventListener("mouseup", stop);
     };
   }, []);
+
+  const startSidebarDrag = () => (isDraggingSidebar.current = true);
 
   const startModalDrag = (e: React.MouseEvent) => {
     setDragStart({ x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y });
@@ -98,30 +94,71 @@ export default function App() {
     };
   }, [dragStart]);
 
-  // Added Game tab icon here
+  // === Handlers ===
+  const addImage = () => {
+    const randomImage = imagePool[Math.floor(Math.random() * imagePool.length)];
+    setImages((imgs) => [...imgs, randomImage]);
+  };
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"];
+    if (!allowedTypes.includes(file.type)) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      setProfilePics((prev) => [...prev, result]);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Music tab handlers
+  const handleMusicLinkSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!musicUrl) return;
+    setAudioSrc(musicUrl);
+  };
+
+  const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setAudioSrc(url);
+    setMusicUrl("");
+  };
+
+  // === Tabs Array (includes Music) ===
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
     { name: "profile", icon: <User size={24} />, label: "Profile" },
     { name: "settings", icon: <Settings size={24} />, label: "Settings" },
-    { name: "game", icon: <Gamepad size={24} />, label: "Game" },
+    { name: "music", icon: <Music size={24} />, label: "Music" },
   ];
 
-  // Animation variants for fade in/out
-  const fadeVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 },
+  // === Animation Variants ===
+  const playerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: 20 },
   };
 
+  // === JSX ===
   return (
     <motion.div
       className="container"
-      style={{ overflow: "hidden", height: "100vh" }}
+      style={{ overflow: "hidden", height: "100vh", backgroundColor: "black", color: "white" }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <button className="toggle-button" onClick={() => setTabsVisible((prev) => !prev)}>
+      <button
+        className="toggle-button"
+        onClick={() => setTabsVisible((prev) => !prev)}
+        style={{ backgroundColor: "#007BFF", color: "white" }}
+      >
         {tabsVisible ? "Hide General Settings" : "Show General Settings"}
       </button>
 
@@ -133,6 +170,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
+            style={{ marginBottom: 20 }}
           >
             {tabs.map((tab) => (
               <div key={tab.name} className="tooltip-wrapper">
@@ -141,6 +179,7 @@ export default function App() {
                   whileTap={{ scale: 0.95 }}
                   className={activeTab === tab.name ? "tab active" : "tab"}
                   onClick={() => setActiveTab(tab.name)}
+                  aria-label={tab.label}
                 >
                   {tab.icon}
                 </motion.button>
@@ -156,10 +195,9 @@ export default function App() {
           <motion.div
             key={activeTab}
             className="tab-content fade-in"
-            variants={fadeVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
             style={{ display: "flex", overflow: "hidden", height: "100%" }}
           >
@@ -351,24 +389,142 @@ export default function App() {
                     <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
                   </div>
                 </label>
+
+                {/* Additional settings */}
+                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Notifications</span>
+                  <input
+                    type="checkbox"
+                    checked={true}
+                    onChange={() => alert("Notifications setting toggled!")}
+                  />
+                </label>
+
+                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Auto Save Profile</span>
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    onChange={() => alert("Auto Save toggled!")}
+                  />
+                </label>
+
+                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Sound Effects</span>
+                  <input
+                    type="checkbox"
+                    checked={true}
+                    onChange={() => alert("Sound Effects toggled!")}
+                  />
+                </label>
               </div>
             )}
 
-            {/* Game Tab */}
-            {activeTab === "game" && (
-              <div
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: 20,
-                }}
+            {/* Music Tab */}
+            {activeTab === "music" && (
+              <motion.div
+                key="music-player"
+                variants={playerVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ duration: 0.5 }}
+                style={{ width: "100%", padding: 20 }}
               >
-                <h2>Simple Game: Click the Button!</h2>
-                <Game />
-              </div>
+                <h2>Music Player</h2>
+
+                <form onSubmit={handleMusicLinkSubmit} style={{ marginBottom: 16 }}>
+                  <label htmlFor="music-url" style={{ display: "block", marginBottom: 8 }}>
+                    Paste Audio URL:
+                  </label>
+                  <input
+                    id="music-url"
+                    type="url"
+                    placeholder="https://example.com/audio.mp3"
+                    value={musicUrl}
+                    onChange={(e) => setMusicUrl(e.target.value)}
+                    style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      marginTop: 8,
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      border: "none",
+                      backgroundColor: "#007BFF",
+                      color: "white",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Play URL
+                  </button>
+                </form>
+
+                <label
+                  style={{
+                    display: "inline-block",
+                    padding: "8px 16px",
+                    backgroundColor: "#4CAF50",
+                    color: "white",
+                    borderRadius: 6,
+                    cursor: "pointer",
+                    marginBottom: 20,
+                    userSelect: "none",
+                  }}
+                >
+                  Upload Audio File
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    style={{ display: "none" }}
+                    onChange={handleMusicUpload}
+                  />
+                </label>
+
+                <AnimatePresence>
+                  {audioSrc && (
+                    <motion.div
+                      key="audio-player"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.5 }}
+                      style={{
+                        marginTop: 24,
+                        backgroundColor: "#222",
+                        padding: 20,
+                        borderRadius: 12,
+                        color: "white",
+                        maxWidth: 480,
+                      }}
+                    >
+                      <audio
+                        ref={audioRef}
+                        src={audioSrc}
+                        controls
+                        autoPlay
+                        style={{ width: "100%", outline: "none" }}
+                        onEnded={() => setAudioSrc(null)}
+                      />
+                      <button
+                        onClick={() => setAudioSrc(null)}
+                        style={{
+                          marginTop: 12,
+                          padding: "6px 12px",
+                          borderRadius: 6,
+                          border: "none",
+                          backgroundColor: "#d33",
+                          color: "white",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Stop & Clear
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             )}
           </motion.div>
         )}
@@ -429,43 +585,6 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Filler lines to reach 275+ lines */}
-      {/*
-        The following blank lines ensure minimum line count is maintained.
-        This does not affect the functionality or UI.
-      */}
-      {"\n".repeat(40)}
-
     </motion.div>
-  );
-}
-
-function Game() {
-  // Simple click counter game for demo in Game tab
-  const [score, setScore] = useState(0);
-  return (
-    <div style={{ textAlign: "center" }}>
-      <p style={{ fontSize: 18, marginBottom: 10 }}>Your Score: {score}</p>
-      <button
-        onClick={() => setScore(score + 1)}
-        style={{
-          padding: "10px 20px",
-          fontSize: 16,
-          borderRadius: 8,
-          border: "none",
-          backgroundColor: "#007BFF",
-          color: "white",
-          cursor: "pointer",
-          userSelect: "none",
-          transition: "background-color 0.3s",
-        }}
-        onMouseDown={(e) => (e.currentTarget.style.backgroundColor = "#0056b3")}
-        onMouseUp={(e) => (e.currentTarget.style.backgroundColor = "#007BFF")}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#007BFF")}
-      >
-        Click Me!
-      </button>
-    </div>
   );
 }
