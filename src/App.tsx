@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Home, User, Settings, Plus, Music } from "lucide-react";
+import { Home, User, Settings, Plus, Music, Gamepad } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
@@ -32,6 +32,11 @@ export default function App() {
   const [musicUrl, setMusicUrl] = useState("");
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Game Tab States (ADDED)
+  const [gameScore, setGameScore] = useState(0);
+  const [gameRunning, setGameRunning] = useState(false);
+  const gameIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const isDraggingSidebar = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -130,12 +135,32 @@ export default function App() {
     setMusicUrl("");
   };
 
-  // === Tabs Array (includes Music) ===
+  // Game Tab handlers (ADDED)
+  const startGame = () => {
+    if (gameRunning) return;
+    setGameScore(0);
+    setGameRunning(true);
+    gameIntervalRef.current = setInterval(() => {
+      setGameScore((score) => score + 1);
+    }, 1000);
+  };
+
+  const stopGame = () => {
+    if (!gameRunning) return;
+    setGameRunning(false);
+    if (gameIntervalRef.current) {
+      clearInterval(gameIntervalRef.current);
+      gameIntervalRef.current = null;
+    }
+  };
+
+  // === Tabs Array (ADDED game tab)
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
     { name: "profile", icon: <User size={24} />, label: "Profile" },
     { name: "settings", icon: <Settings size={24} />, label: "Settings" },
     { name: "music", icon: <Music size={24} />, label: "Music" },
+    { name: "game", icon: <Gamepad size={24} />, label: "Game" }, // added game tab icon and label
   ];
 
   // === Animation Variants ===
@@ -524,6 +549,51 @@ export default function App() {
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </motion.div>
+            )}
+
+            {/* Game Tab (ADDED) */}
+            {activeTab === "game" && (
+              <motion.div
+                key="game-tab"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{ width: "100%", padding: 20, display: "flex", flexDirection: "column", alignItems: "center" }}
+              >
+                <h2>Simple Increment Game</h2>
+                <p>Score: {gameScore}</p>
+                <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+                  <button
+                    onClick={startGame}
+                    disabled={gameRunning}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      border: "none",
+                      backgroundColor: gameRunning ? "#666" : "#28a745",
+                      color: "white",
+                      cursor: gameRunning ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Start
+                  </button>
+                  <button
+                    onClick={stopGame}
+                    disabled={!gameRunning}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      border: "none",
+                      backgroundColor: !gameRunning ? "#666" : "#dc3545",
+                      color: "white",
+                      cursor: !gameRunning ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Stop
+                  </button>
+                </div>
               </motion.div>
             )}
           </motion.div>
