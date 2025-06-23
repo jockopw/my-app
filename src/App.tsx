@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Home, User, Settings, Plus, Music } from "lucide-react";
+import { Home, User, Settings, Plus, Music, Gamepad } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
@@ -32,6 +32,11 @@ export default function App() {
   const [musicUrl, setMusicUrl] = useState("");
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Game Tab States (ADDED)
+  const [gameScore, setGameScore] = useState(0);
+  const [gameRunning, setGameRunning] = useState(false);
+  const gameIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const isDraggingSidebar = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -130,12 +135,32 @@ export default function App() {
     setMusicUrl("");
   };
 
-  // === Tabs Array (includes Music) ===
+  // Game Tab handlers (ADDED)
+  const startGame = () => {
+    if (gameRunning) return;
+    setGameScore(0);
+    setGameRunning(true);
+    gameIntervalRef.current = setInterval(() => {
+      setGameScore((score) => score + 1);
+    }, 1000);
+  };
+
+  const stopGame = () => {
+    if (!gameRunning) return;
+    setGameRunning(false);
+    if (gameIntervalRef.current) {
+      clearInterval(gameIntervalRef.current);
+      gameIntervalRef.current = null;
+    }
+  };
+
+  // === Tabs Array (ADDED game tab)
   const tabs = [
     { name: "home", icon: <Home size={24} />, label: "Home" },
     { name: "profile", icon: <User size={24} />, label: "Profile" },
     { name: "settings", icon: <Settings size={24} />, label: "Settings" },
     { name: "music", icon: <Music size={24} />, label: "Music" },
+    { name: "game", icon: <Gamepad size={24} />, label: "Game" }, // added game tab icon and label
   ];
 
   // === Animation Variants ===
@@ -371,10 +396,8 @@ export default function App() {
             {activeTab === "settings" && (
               <div style={{ width: "100%" }}>
                 <h2>Settings</h2>
-                <label style={{ display: "flex", alignItems: "center", cursor: "pointer", userSelect: "none" }}>
-                  <span style={{ marginRight: 12, fontSize: 18 }}>
-                    {darkModeEnabled ? "Dark Mode" : "White Mode"}
-                  </span>
+                <label style={{ display: "block", marginBottom: 20 }}>
+                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>White Mode & Dark Mode</span>
                   <div
                     className="toggle-switch"
                     onClick={() => setDarkModeEnabled((d) => !d)}
@@ -390,6 +413,34 @@ export default function App() {
                   >
                     <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
                   </div>
+                </label>
+
+                {/* Additional settings */}
+                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Notifications</span>
+                  <input
+                    type="checkbox"
+                    checked={true}
+                    onChange={() => alert("Notifications setting toggled!")}
+                  />
+                </label>
+
+                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Auto Save Profile</span>
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    onChange={() => alert("Auto Save toggled!")}
+                  />
+                </label>
+
+                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Sound Effects</span>
+                  <input
+                    type="checkbox"
+                    checked={true}
+                    onChange={() => alert("Sound Effects toggled!")}
+                  />
                 </label>
               </div>
             )}
@@ -500,6 +551,51 @@ export default function App() {
                 </AnimatePresence>
               </motion.div>
             )}
+
+            {/* Game Tab (ADDED) */}
+            {activeTab === "game" && (
+              <motion.div
+                key="game-tab"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{ width: "100%", padding: 20, display: "flex", flexDirection: "column", alignItems: "center" }}
+              >
+                <h2>Simple Increment Game</h2>
+                <p>Score: {gameScore}</p>
+                <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+                  <button
+                    onClick={startGame}
+                    disabled={gameRunning}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      border: "none",
+                      backgroundColor: gameRunning ? "#666" : "#28a745",
+                      color: "white",
+                      cursor: gameRunning ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Start
+                  </button>
+                  <button
+                    onClick={stopGame}
+                    disabled={!gameRunning}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      border: "none",
+                      backgroundColor: !gameRunning ? "#666" : "#dc3545",
+                      color: "white",
+                      cursor: !gameRunning ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Stop
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -525,53 +621,37 @@ export default function App() {
             }}
             onClick={() => setPreviewImage(null)}
           >
-            <motion.div
-              className="modal-content"
+            <div
               ref={modalRef}
-              drag
-              dragMomentum={false}
-              dragElastic={0.1}
-              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-              onClick={(e) => e.stopPropagation()}
               style={{
-                backgroundColor: "#111",
-                borderRadius: 12,
-                padding: 16,
-                maxWidth: "80vw",
-                maxHeight: "80vh",
-                userSelect: "none",
+                position: "absolute",
+                top: `calc(50% + ${dragOffset.y}px)`,
+                left: `calc(50% + ${dragOffset.x}px)`,
+                transform: "translate(-50%, -50%)",
+                zIndex: 10000,
                 cursor: dragStart ? "grabbing" : "grab",
-                transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) rotate(${rotation}deg) scale(${zoom})`,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
               }}
               onMouseDown={startModalDrag}
+              onClick={(e) => e.stopPropagation()}
             >
-              <img
+              <motion.img
                 src={previewImage}
                 alt="Preview"
-                style={{ maxWidth: "100%", maxHeight: "60vh", borderRadius: 8, marginBottom: 12 }}
-                draggable={false}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                style={{
+                  maxWidth: "80vw",
+                  maxHeight: "80vh",
+                  transform: `scale(${zoom}) rotate(${rotation}deg)`,
+                  borderRadius: 12,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
+                  userSelect: "none",
+                  pointerEvents: "none",
+                }}
               />
-
-              <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-                <button onClick={() => setZoom((z) => Math.min(3, z + 0.1))}>Zoom In</button>
-                <button onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))}>Zoom Out</button>
-                <button onClick={() => setRotation((r) => r + 15)}>Rotate Right</button>
-                <button onClick={() => setRotation((r) => r - 15)}>Rotate Left</button>
-                <button
-                  onClick={() => {
-                    setZoom(1);
-                    setRotation(0);
-                    setDragOffset({ x: 0, y: 0 });
-                  }}
-                >
-                  Reset
-                </button>
-                <button onClick={() => setPreviewImage(null)}>Close</button>
-              </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
