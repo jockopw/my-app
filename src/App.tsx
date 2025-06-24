@@ -3,9 +3,6 @@ import { Home, User, Settings, Plus, Music, Gamepad } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./styles.css";
 
-import CodeMirror from "@uiw/react-codemirror";
-import { lua } from "@codemirror/lang-lua";
-
 export default function App() {
   // === States ===
   const [activeTab, setActiveTab] = useState("home");
@@ -41,9 +38,6 @@ export default function App() {
   const [gameScore, setGameScore] = useState(0);
   const [gameRunning, setGameRunning] = useState(false);
   const gameIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Lua Editor Code State
-  const [luaCode, setLuaCode] = useState("-- Write your Lua code here\nprint('Hello, Lua!')");
 
   const isDraggingSidebar = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -268,23 +262,11 @@ export default function App() {
               borderRadius: 12,
               color: "white",
               userSelect: "none",
-              height: "400px",
-              display: "flex",
-              flexDirection: "column",
             }}
           >
-            <h2>Lua Code Editor</h2>
-            <p>Edit Lua code below:</p>
-            <div style={{ flex: 1, marginTop: 12, borderRadius: 8, overflow: "hidden", border: "1px solid #555" }}>
-              <CodeMirror
-                value={luaCode}
-                height="100%"
-                extensions={[lua()]}
-                onChange={(value) => setLuaCode(value)}
-                theme="dark"
-                basicSetup={true}
-              />
-            </div>
+            <h2>Extra Panel Content</h2>
+            <p>This is the extra panel controlled by the second toggle button.</p>
+            <p>You can put anything you want here.</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -468,117 +450,101 @@ export default function App() {
             )}
 
             {/* Settings Tab */}
-            {activeTab === "settings" && tabsVisible && !secondVisible && (
-              <div style={{ width: "100%" }}>
-                <h2>Settings</h2>
-                <label style={{ display: "block", marginBottom: 20 }}>
-                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>White Mode & Dark Mode</span>
-                  <div
-                    className="toggle-switch"
-                    onClick={() => setDarkModeEnabled((d) => !d)}
-                    role="switch"
-                    aria-checked={darkModeEnabled}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setDarkModeEnabled((d) => !d);
-                      }
-                    }}
-                  >
-                    <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
-                  </div>
-                </label>
+{activeTab === "settings" && tabsVisible && !secondVisible && (
+  <div style={{ width: "100%" }}>
+    <h2>Settings</h2>
+    <label style={{ display: "block", marginBottom: 20 }}>
+      <span style={{ marginRight: 12, verticalAlign: "middle" }}>White Mode & Dark Mode</span>
+      <div
+        className="toggle-switch"
+        onClick={() => setDarkModeEnabled((d) => !d)}
+        role="switch"
+        aria-checked={darkModeEnabled}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setDarkModeEnabled((d) => !d);
+          }
+        }}
+      >
+        <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
+      </div>
+    </label>
 
-                {/* Additional settings */}
-                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
-                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Notifications</span>
-                  <input
-                    type="checkbox"
-                    checked={true}
-                    onChange={() => alert("Notifications setting toggled!")}
-                  />
-                </label>
+    {/* Additional settings */}
+    <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+      <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Notifications</span>
+      <input
+        type="checkbox"
+        checked={true}
+        onChange={() => alert("Notifications setting toggled!")}
+      />
+    </label>
 
-                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
-                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Auto Save Profile</span>
-                  <input
-                    type="checkbox"
-                    checked={false}
-                    onChange={() => alert("Auto Save toggled!")}
-                  />
-                </label>
+    <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+      <span style={{ marginRight: 12, verticalAlign: "middle" }}>Auto Save Profile</span>
+      <input
+        type="checkbox"
+        checked={false}
+        onChange={() => alert("Auto Save toggled!")}
+      />
+    </label>
 
-                <p style={{ color: darkModeEnabled ? "white" : "black", fontStyle: "italic" }}>
-                  More settings coming soon...
-                </p>
-              </div>
-            )}
-
-            {/* Music Tab */}
-            {activeTab === "music" && tabsVisible && !secondVisible && (
-              <div style={{ width: "100%" }}>
-                <h2>Music Player</h2>
-
-                <form onSubmit={handleMusicLinkSubmit} style={{ marginBottom: 16 }}>
-                  <input
-                    type="text"
-                    placeholder="Enter audio URL"
-                    value={musicUrl}
-                    onChange={(e) => setMusicUrl(e.target.value)}
-                    style={{ width: "60%", padding: 8, marginRight: 8, borderRadius: 6 }}
-                  />
-                  <button type="submit" style={{ padding: "8px 12px", borderRadius: 6, cursor: "pointer" }}>
-                    Play
-                  </button>
-                </form>
-
-                <input type="file" accept="audio/*" onChange={handleMusicUpload} style={{ marginBottom: 16 }} />
-
-                {audioSrc && (
-                  <audio controls ref={audioRef} style={{ width: "100%" }}>
-                    <source src={audioSrc} />
-                    Your browser does not support the audio element.
-                  </audio>
-                )}
-              </div>
-            )}
+    <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+      <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Sound Effects</span>
+      <input
+        type="checkbox"
+        checked={true}
+        onChange={() => alert("Sound Effects toggled!")}
+      />
+    </label>
+  </div>
+)}
 
             {/* Game Tab */}
-            {activeTab === "game" && tabsVisible && !secondVisible && (
-              <div style={{ width: "100%" }}>
-                <h2>Simple Game</h2>
+            {activeTab === "game" && (
+              <motion.div
+                key="game-tab"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{ width: "100%", padding: 20, display: "flex", flexDirection: "column", alignItems: "center" }}
+              >
+                <h2>Simple Increment Game</h2>
                 <p>Score: {gameScore}</p>
-                <button
-                  onClick={startGame}
-                  disabled={gameRunning}
-                  style={{
-                    marginRight: 12,
-                    padding: "8px 16px",
-                    backgroundColor: gameRunning ? "#ccc" : "#007bff",
-                    color: "white",
-                    border: "none",
-                    borderRadius: 6,
-                    cursor: gameRunning ? "default" : "pointer",
-                  }}
-                >
-                  Start
-                </button>
-                <button
-                  onClick={stopGame}
-                  disabled={!gameRunning}
-                  style={{
-                    padding: "8px 16px",
-                    backgroundColor: !gameRunning ? "#ccc" : "#dc3545",
-                    color: "white",
-                    border: "none",
-                    borderRadius: 6,
-                    cursor: !gameRunning ? "default" : "pointer",
-                  }}
-                >
-                  Stop
-                </button>
-              </div>
+                <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+                  <button
+                    onClick={startGame}
+                    disabled={gameRunning}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      border: "none",
+                      backgroundColor: gameRunning ? "#666" : "#28a745",
+                      color: "white",
+                      cursor: gameRunning ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Start
+                  </button>
+                  <button
+                    onClick={stopGame}
+                    disabled={!gameRunning}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      border: "none",
+                      backgroundColor: !gameRunning ? "#666" : "#dc3545",
+                      color: "white",
+                      cursor: !gameRunning ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Stop
+                  </button>
+                </div>
+              </motion.div>
             )}
           </motion.div>
         )}
@@ -588,57 +554,55 @@ export default function App() {
       <AnimatePresence>
         {previewImage && (
           <motion.div
-            className="modal-backdrop"
+            className="modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             style={{
               position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(0,0,0,0.8)",
+              inset: 0,
+              backgroundColor: "rgba(0,0,0,0.3)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
               zIndex: 9999,
-              userSelect: "none",
             }}
             onClick={() => setPreviewImage(null)}
           >
-            <motion.div
-              key="modal-image"
-              className="modal-image-wrapper"
-              initial={{ scale: 0.7, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.7, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+            <div
+              ref={modalRef}
               style={{
-                maxWidth: "90vw",
-                maxHeight: "90vh",
-                overflow: "hidden",
-                position: "relative",
-                cursor: "grab",
-                userSelect: "none",
+                position: "absolute",
+                top: `calc(50% + ${dragOffset.y}px)`,
+                left: `calc(50% + ${dragOffset.x}px)`,
+                transform: "translate(-50%, -50%)",
+                zIndex: 10000,
+                cursor: dragStart ? "grabbing" : "grab",
               }}
               onMouseDown={startModalDrag}
-              ref={modalRef}
+              onClick={(e) => e.stopPropagation()}
             >
-              <img
+              <motion.img
                 src={previewImage}
                 alt="Preview"
-                draggable={false}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3 }}
                 style={{
-                  display: "block",
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  transform: `translate(${dragOffset.x}px, ${dragOffset.y}px) scale(${zoom}) rotate(${rotation}deg)`,
+                  maxWidth: "80vw",
+                  maxHeight: "80vh",
+                  transform: `scale(${zoom}) rotate(${rotation}deg)`,
+                  borderRadius: 12,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
                   userSelect: "none",
                   pointerEvents: "none",
                 }}
               />
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
