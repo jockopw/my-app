@@ -7,7 +7,8 @@ export default function App() {
   // === States ===
   const [activeTab, setActiveTab] = useState("home");
   const [tabsVisible, setTabsVisible] = useState(true);
-  const [secondToggleVisible, setSecondToggleVisible] = useState(false);
+  const [secondVisible, setSecondVisible] = useState(false); // NEW toggle state for second section
+
   const [images, setImages] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -185,21 +186,24 @@ export default function App() {
           className="toggle-button"
           onClick={() => setTabsVisible((prev) => !prev)}
           style={{ backgroundColor: "#007BFF", color: "white" }}
+          aria-pressed={tabsVisible}
         >
           {tabsVisible ? "Hide General Settings" : "Show General Settings"}
         </button>
 
+        {/* New second toggle button */}
         <button
           className="toggle-button"
-          onClick={() => setSecondToggleVisible((prev) => !prev)}
-          style={{ backgroundColor: "#007BFF", color: "white" }}
+          onClick={() => setSecondVisible((prev) => !prev)}
+          style={{ backgroundColor: "#28a745", color: "white" }}
+          aria-pressed={secondVisible}
         >
-          {secondToggleVisible ? "Hide Second Toggle" : "Show Second Toggle"}
+          {secondVisible ? "Hide Extra Panel" : "Show Extra Panel"}
         </button>
       </div>
 
       <AnimatePresence>
-        {(tabsVisible || secondToggleVisible) && (
+        {tabsVisible && (
           <motion.div
             className="tabs"
             initial={{ opacity: 0, y: -10 }}
@@ -226,8 +230,32 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* New second panel */}
+      <AnimatePresence>
+        {secondVisible && (
+          <motion.div
+            key="extra-panel"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              backgroundColor: "#222",
+              color: "white",
+              padding: 20,
+              marginBottom: 20,
+              borderRadius: 8,
+            }}
+          >
+            <h3>Extra Panel Content</h3>
+            <p>This is a new panel controlled by the second toggle button.</p>
+            <p>You can put any content here you want.</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
-        {(tabsVisible || secondToggleVisible) && (
+        {tabsVisible && (
           <motion.div
             key={activeTab}
             className="tab-content fade-in"
@@ -468,48 +496,42 @@ export default function App() {
                 style={{ width: "100%", padding: 20 }}
               >
                 <h2>Music Player</h2>
-
-                <form onSubmit={handleMusicLinkSubmit} style={{ marginBottom: 16 }}>
-                  <label htmlFor="music-url" style={{ display: "block", marginBottom: 8 }}>
-                    Paste Audio URL:
-                  </label>
+                <form onSubmit={handleMusicLinkSubmit} style={{ marginBottom: 12 }}>
                   <input
-                    id="music-url"
-                    type="url"
-                    placeholder="https://example.com/audio.mp3"
+                    type="text"
+                    placeholder="Enter music URL"
                     value={musicUrl}
                     onChange={(e) => setMusicUrl(e.target.value)}
-                    style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
+                    style={{ width: "60%", padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
                   />
                   <button
                     type="submit"
                     style={{
-                      marginTop: 8,
+                      marginLeft: 12,
                       padding: "8px 16px",
                       borderRadius: 6,
                       border: "none",
-                      backgroundColor: "#007BFF",
+                      backgroundColor: "#28a745",
                       color: "white",
                       cursor: "pointer",
                     }}
                   >
-                    Play URL
+                    Play
                   </button>
                 </form>
 
                 <label
                   style={{
                     display: "inline-block",
-                    padding: "8px 16px",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
+                    padding: "6px 12px",
                     borderRadius: 6,
+                    backgroundColor: "#007bff",
+                    color: "white",
                     cursor: "pointer",
-                    marginBottom: 20,
-                    userSelect: "none",
+                    marginBottom: 12,
                   }}
                 >
-                  Upload Audio File
+                  Upload Audio
                   <input
                     type="file"
                     accept="audio/*"
@@ -518,52 +540,18 @@ export default function App() {
                   />
                 </label>
 
-                <AnimatePresence>
-                  {audioSrc && (
-                    <motion.div
-                      key="audio-player"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.5 }}
-                      style={{
-                        marginTop: 24,
-                        backgroundColor: "#222",
-                        padding: 20,
-                        borderRadius: 12,
-                        color: "white",
-                        maxWidth: 480,
-                      }}
-                    >
-                      <audio
-                        ref={audioRef}
-                        src={audioSrc}
-                        controls
-                        autoPlay
-                        style={{ width: "100%", outline: "none" }}
-                        onEnded={() => setAudioSrc(null)}
-                      />
-                      <button
-                        onClick={() => setAudioSrc(null)}
-                        style={{
-                          marginTop: 12,
-                          padding: "6px 12px",
-                          borderRadius: 6,
-                          border: "none",
-                          backgroundColor: "#d33",
-                          color: "white",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Stop & Clear
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {audioSrc && (
+                  <audio
+                    controls
+                    ref={audioRef}
+                    src={audioSrc}
+                    style={{ width: "100%", borderRadius: 8 }}
+                  />
+                )}
               </motion.div>
             )}
 
-            {/* Game Tab (ADDED) */}
+            {/* Game Tab */}
             {activeTab === "game" && (
               <motion.div
                 key="game-tab"
