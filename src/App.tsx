@@ -7,8 +7,7 @@ export default function App() {
   // === States ===
   const [activeTab, setActiveTab] = useState("home");
   const [tabsVisible, setTabsVisible] = useState(true);
-  const [secondVisible, setSecondVisible] = useState(false); // NEW toggle state for second section
-
+  const [secondVisible, setSecondVisible] = useState(false); // second toggle panel visibility
   const [images, setImages] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -162,7 +161,7 @@ export default function App() {
     { name: "profile", icon: <User size={24} />, label: "Profile" },
     { name: "settings", icon: <Settings size={24} />, label: "Settings" },
     { name: "music", icon: <Music size={24} />, label: "Music" },
-    { name: "game", icon: <Gamepad size={24} />, label: "Game" }, // added game tab icon and label
+    { name: "game", icon: <Gamepad size={24} />, label: "Game" },
   ];
 
   // === Animation Variants ===
@@ -170,6 +169,25 @@ export default function App() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: 20 },
+  };
+
+  // === Handlers for toggles to auto-hide other panel ===
+  const toggleTabsVisible = () => {
+    if (!tabsVisible) {
+      setTabsVisible(true);
+      setSecondVisible(false);
+    } else {
+      setTabsVisible(false);
+    }
+  };
+
+  const toggleSecondVisible = () => {
+    if (!secondVisible) {
+      setSecondVisible(true);
+      setTabsVisible(false);
+    } else {
+      setSecondVisible(false);
+    }
   };
 
   // === JSX ===
@@ -181,35 +199,33 @@ export default function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
+      {/* Toggle Buttons */}
       <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
         <button
           className="toggle-button"
-          onClick={() => setTabsVisible((prev) => !prev)}
+          onClick={toggleTabsVisible}
           style={{ backgroundColor: "#007BFF", color: "white" }}
-          aria-pressed={tabsVisible}
         >
           {tabsVisible ? "Hide General Settings" : "Show General Settings"}
         </button>
-
-        {/* New second toggle button */}
         <button
           className="toggle-button"
-          onClick={() => setSecondVisible((prev) => !prev)}
+          onClick={toggleSecondVisible}
           style={{ backgroundColor: "#28a745", color: "white" }}
-          aria-pressed={secondVisible}
         >
           {secondVisible ? "Hide Extra Panel" : "Show Extra Panel"}
         </button>
       </div>
 
+      {/* General Settings Tabs */}
       <AnimatePresence>
         {tabsVisible && (
           <motion.div
             className="tabs"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
             style={{ marginBottom: 20 }}
           >
             {tabs.map((tab) => (
@@ -230,30 +246,32 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* New second panel */}
+      {/* Extra Panel (Second Toggle) */}
       <AnimatePresence>
         {secondVisible && (
           <motion.div
             key="extra-panel"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
             style={{
-              backgroundColor: "#222",
-              color: "white",
               padding: 20,
               marginBottom: 20,
-              borderRadius: 8,
+              backgroundColor: "#222",
+              borderRadius: 12,
+              color: "white",
+              userSelect: "none",
             }}
           >
-            <h3>Extra Panel Content</h3>
-            <p>This is a new panel controlled by the second toggle button.</p>
-            <p>You can put any content here you want.</p>
+            <h2>Extra Panel Content</h2>
+            <p>This is the extra panel controlled by the second toggle button.</p>
+            <p>You can put anything you want here.</p>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Main Tab Content */}
       <AnimatePresence mode="wait">
         {tabsVisible && (
           <motion.div
@@ -436,49 +454,12 @@ export default function App() {
               <div style={{ width: "100%" }}>
                 <h2>Settings</h2>
                 <label style={{ display: "block", marginBottom: 20 }}>
-                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>White Mode & Dark Mode</span>
-                  <div
-                    className="toggle-switch"
-                    onClick={() => setDarkModeEnabled((d) => !d)}
-                    role="switch"
-                    aria-checked={darkModeEnabled}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setDarkModeEnabled((d) => !d);
-                      }
-                    }}
-                  >
-                    <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
-                  </div>
-                </label>
-
-                {/* Additional settings */}
-                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
-                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Notifications</span>
+                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Dark Mode</span>
                   <input
                     type="checkbox"
-                    checked={true}
-                    onChange={() => alert("Notifications setting toggled!")}
-                  />
-                </label>
-
-                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
-                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Auto Save Profile</span>
-                  <input
-                    type="checkbox"
-                    checked={false}
-                    onChange={() => alert("Auto Save toggled!")}
-                  />
-                </label>
-
-                <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
-                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Sound Effects</span>
-                  <input
-                    type="checkbox"
-                    checked={true}
-                    onChange={() => alert("Sound Effects toggled!")}
+                    checked={darkModeEnabled}
+                    onChange={() => setDarkModeEnabled(!darkModeEnabled)}
+                    style={{ verticalAlign: "middle" }}
                   />
                 </label>
               </div>
@@ -486,32 +467,23 @@ export default function App() {
 
             {/* Music Tab */}
             {activeTab === "music" && (
-              <motion.div
-                key="music-player"
-                variants={playerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={{ duration: 0.5 }}
-                style={{ width: "100%", padding: 20 }}
-              >
+              <div style={{ width: "100%" }}>
                 <h2>Music Player</h2>
-                <form onSubmit={handleMusicLinkSubmit} style={{ marginBottom: 12 }}>
+                <form onSubmit={handleMusicLinkSubmit} style={{ marginBottom: 20 }}>
                   <input
-                    type="text"
-                    placeholder="Enter music URL"
+                    type="url"
+                    placeholder="Paste music link here"
                     value={musicUrl}
                     onChange={(e) => setMusicUrl(e.target.value)}
-                    style={{ width: "60%", padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
+                    style={{ width: "100%", padding: 8, borderRadius: 6, marginBottom: 10 }}
                   />
                   <button
                     type="submit"
                     style={{
-                      marginLeft: 12,
                       padding: "8px 16px",
                       borderRadius: 6,
                       border: "none",
-                      backgroundColor: "#28a745",
+                      backgroundColor: "#007BFF",
                       color: "white",
                       cursor: "pointer",
                     }}
@@ -519,36 +491,11 @@ export default function App() {
                     Play
                   </button>
                 </form>
-
-                <label
-                  style={{
-                    display: "inline-block",
-                    padding: "6px 12px",
-                    borderRadius: 6,
-                    backgroundColor: "#007bff",
-                    color: "white",
-                    cursor: "pointer",
-                    marginBottom: 12,
-                  }}
-                >
-                  Upload Audio
-                  <input
-                    type="file"
-                    accept="audio/*"
-                    style={{ display: "none" }}
-                    onChange={handleMusicUpload}
-                  />
-                </label>
-
+                <input type="file" accept="audio/*" onChange={handleMusicUpload} style={{ marginBottom: 20 }} />
                 {audioSrc && (
-                  <audio
-                    controls
-                    ref={audioRef}
-                    src={audioSrc}
-                    style={{ width: "100%", borderRadius: 8 }}
-                  />
+                  <audio ref={audioRef} src={audioSrc} controls autoPlay style={{ width: "100%" }} />
                 )}
-              </motion.div>
+              </div>
             )}
 
             {/* Game Tab */}
@@ -599,6 +546,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Preview Modal */}
       <AnimatePresence>
         {previewImage && (
           <motion.div
