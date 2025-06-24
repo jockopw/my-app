@@ -7,6 +7,7 @@ export default function App() {
   // === States ===
   const [activeTab, setActiveTab] = useState("home");
   const [tabsVisible, setTabsVisible] = useState(true);
+  const [secondToggleVisible, setSecondToggleVisible] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -179,16 +180,26 @@ export default function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
     >
-      <button
-        className="toggle-button"
-        onClick={() => setTabsVisible((prev) => !prev)}
-        style={{ backgroundColor: "#007BFF", color: "white" }}
-      >
-        {tabsVisible ? "Hide General Settings" : "Show General Settings"}
-      </button>
+      <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
+        <button
+          className="toggle-button"
+          onClick={() => setTabsVisible((prev) => !prev)}
+          style={{ backgroundColor: "#007BFF", color: "white" }}
+        >
+          {tabsVisible ? "Hide General Settings" : "Show General Settings"}
+        </button>
+
+        <button
+          className="toggle-button"
+          onClick={() => setSecondToggleVisible((prev) => !prev)}
+          style={{ backgroundColor: "#007BFF", color: "white" }}
+        >
+          {secondToggleVisible ? "Hide Second Toggle" : "Show Second Toggle"}
+        </button>
+      </div>
 
       <AnimatePresence>
-        {tabsVisible && (
+        {(tabsVisible || secondToggleVisible) && (
           <motion.div
             className="tabs"
             initial={{ opacity: 0, y: -10 }}
@@ -216,7 +227,7 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
-        {tabsVisible && (
+        {(tabsVisible || secondToggleVisible) && (
           <motion.div
             key={activeTab}
             className="tab-content fade-in"
