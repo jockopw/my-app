@@ -450,53 +450,57 @@ export default function App() {
             )}
 
             {/* Settings Tab */}
-            {activeTab === "settings" && (
-              <div style={{ width: "100%" }}>
-                <h2>Settings</h2>
-                <label style={{ display: "block", marginBottom: 20 }}>
-                  <span style={{ marginRight: 12, verticalAlign: "middle" }}>Dark Mode</span>
-                  <input
-                    type="checkbox"
-                    checked={darkModeEnabled}
-                    onChange={() => setDarkModeEnabled(!darkModeEnabled)}
-                    style={{ verticalAlign: "middle" }}
-                  />
-                </label>
-              </div>
-            )}
+{activeTab === "settings" && tabsVisible && !secondVisible && (
+  <div style={{ width: "100%" }}>
+    <h2>Settings</h2>
+    <label style={{ display: "block", marginBottom: 20 }}>
+      <span style={{ marginRight: 12, verticalAlign: "middle" }}>White Mode & Dark Mode</span>
+      <div
+        className="toggle-switch"
+        onClick={() => setDarkModeEnabled((d) => !d)}
+        role="switch"
+        aria-checked={darkModeEnabled}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setDarkModeEnabled((d) => !d);
+          }
+        }}
+      >
+        <div className={`toggle-thumb ${darkModeEnabled ? "active" : ""}`} />
+      </div>
+    </label>
 
-            {/* Music Tab */}
-            {activeTab === "music" && (
-              <div style={{ width: "100%" }}>
-                <h2>Music Player</h2>
-                <form onSubmit={handleMusicLinkSubmit} style={{ marginBottom: 20 }}>
-                  <input
-                    type="url"
-                    placeholder="Paste music link here"
-                    value={musicUrl}
-                    onChange={(e) => setMusicUrl(e.target.value)}
-                    style={{ width: "100%", padding: 8, borderRadius: 6, marginBottom: 10 }}
-                  />
-                  <button
-                    type="submit"
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: 6,
-                      border: "none",
-                      backgroundColor: "#007BFF",
-                      color: "white",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Play
-                  </button>
-                </form>
-                <input type="file" accept="audio/*" onChange={handleMusicUpload} style={{ marginBottom: 20 }} />
-                {audioSrc && (
-                  <audio ref={audioRef} src={audioSrc} controls autoPlay style={{ width: "100%" }} />
-                )}
-              </div>
-            )}
+    {/* Additional settings */}
+    <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+      <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Notifications</span>
+      <input
+        type="checkbox"
+        checked={true}
+        onChange={() => alert("Notifications setting toggled!")}
+      />
+    </label>
+
+    <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+      <span style={{ marginRight: 12, verticalAlign: "middle" }}>Auto Save Profile</span>
+      <input
+        type="checkbox"
+        checked={false}
+        onChange={() => alert("Auto Save toggled!")}
+      />
+    </label>
+
+    <label style={{ display: "block", marginBottom: 20, color: darkModeEnabled ? "white" : "black" }}>
+      <span style={{ marginRight: 12, verticalAlign: "middle" }}>Enable Sound Effects</span>
+      <input
+        type="checkbox"
+        checked={true}
+        onChange={() => alert("Sound Effects toggled!")}
+      />
+    </label>
+  </div>
+)}
 
             {/* Game Tab */}
             {activeTab === "game" && (
